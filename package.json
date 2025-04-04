@@ -1,14 +1,15 @@
 {
-  "name": "nextjs",
+  "name": "bible-nextjs",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack --experimental-https",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^4.4.1",
     "@vercel/analytics": "^1.5.0",
     "next": "15.2.4",
     "react": "^19.0.0",
