@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from '@vercel/analytics/next';
-import { auth0 } from "@/lib/auth0"
+import { Analytics } from "@vercel/analytics/next";
+import Header from "./components/Header";
+import { Provider } from "@/app/components/snippets/Provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,32 +25,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth0.getSession();
-
-
   return (
-    <html lang="en">
-      <header>
-        {!session && (
-          <>
-            <a href="/auth/login?screen_hint=signup">Sign up</a>
-            {' '}
-            <a href="/auth/login">Log in</a>
-          </>
-        )}
-        {session && (
-          <>
-          <span>Welcome, {session.user.name}!</span>
-          <a href="/auth/logout">Log out</a>
-          </>
-        )}
-      </header>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-        <Analytics />
-      </body>
+    <html lang="en" suppressHydrationWarning>
+      <Provider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <Header />
+          {children}
+          <Analytics />
+        </body>
+      </Provider>
     </html>
   );
 }
