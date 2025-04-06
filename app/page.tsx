@@ -17,7 +17,14 @@ export default function Home() {
           height={38}
           priority
         />
-        <Heading as="h1" fontWeight="bold" fontSize="2rem">
+        <Heading
+          as="h1"
+          fontWeight="bold"
+          fontSize="2rem"
+          width="100%"
+          textAlign="center"
+          mb="1rem"
+        >
           JustScripture's new home
         </Heading>
         <Text>Coming soon!</Text>
