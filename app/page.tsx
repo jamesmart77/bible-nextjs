@@ -1,7 +1,24 @@
-import { Flex, Heading, Text } from "@chakra-ui/react";
+'use client'
+import { Box, Flex, Separator } from "@chakra-ui/react";
 import Image from "next/image";
+import AiSearch from "./components/search/AiSearch";
+import askGemini from "@/lib/gemini";
+import { useState } from "react";
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [geminiRes, setGeminiRes] = useState<string | undefined>("");
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+    const res = await askGemini(query);
+    setGeminiRes(res);
+    setIsLoading(false);
+    setQuery("");
+  };
+
   return (
     <main>
       <Flex
@@ -17,17 +34,20 @@ export default function Home() {
           height={38}
           priority
         />
-        <Heading
-          as="h1"
-          fontWeight="bold"
-          fontSize="2rem"
-          width="100%"
-          textAlign="center"
-          mb="1rem"
-        >
-          JustScripture's new home
-        </Heading>
-        <Text>Coming soon!</Text>
+        <Box maxWidth={{ base: "96%", md: "80%", lg: "60%" }} mt={4}>
+          <AiSearch
+            isLoading={isLoading}
+            handleSubmit={handleSubmit}
+            query={query}
+            setQuery={setQuery}
+          />
+          {geminiRes && (
+            <>
+              <Separator my={4} />
+              {JSON.stringify(geminiRes)}
+            </>
+          )}
+        </Box>
       </Flex>
     </main>
   );
