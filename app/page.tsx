@@ -1,9 +1,11 @@
-'use client'
+"use client";
 import { Box, Flex, Separator } from "@chakra-ui/react";
 import Image from "next/image";
 import AiSearch from "./components/search/AiSearch";
 import askGemini from "@/lib/gemini";
 import { useState } from "react";
+import parse from "html-react-parser";
+import Link from "next/link";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,6 +19,27 @@ export default function Home() {
     setGeminiRes(res);
     setIsLoading(false);
     setQuery("");
+  };
+
+  const parseRes = () => {
+    return parse(geminiRes || "", {
+      replace: (domNode) => {
+        if (
+          domNode.type === "tag" &&
+          domNode.name === "a" &&
+          domNode.attribs?.href
+        ) {
+          return (
+            <Link
+              href={domNode.attribs.href}
+              style={{ textDecoration: "underline" }}
+            >
+              {(domNode.children[0] as any).data}
+            </Link>
+          );
+        }
+      },
+    });
   };
 
   return (
@@ -44,7 +67,7 @@ export default function Home() {
           {geminiRes && (
             <>
               <Separator my={4} />
-              {JSON.stringify(geminiRes)}
+              {geminiRes && parseRes()}
             </>
           )}
         </Box>

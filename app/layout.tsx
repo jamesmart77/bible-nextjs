@@ -33,7 +33,7 @@ export default async function RootLayout({
         >
           <Header />
           {children}
-          <Analytics />
+          {!process.env.IS_LOCAL && <Analytics />}
         </body>
       </Provider>
     </html>
