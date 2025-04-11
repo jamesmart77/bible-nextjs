@@ -2,10 +2,10 @@ import { Container, Heading, Text } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
 
 type ParamProps = {
-  params: {
+  params: Promise<{
     book: string;
     slug: string[];
-  };
+  }>;
 };
 
 export default async function Passage({ params }: ParamProps) {
