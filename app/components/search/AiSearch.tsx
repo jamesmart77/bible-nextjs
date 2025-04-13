@@ -28,8 +28,9 @@ export default function AiSearch(props: Props) {
           onChange={(e) => setQuery(e.target.value)} // Update state on input change
         />
         <Button
-          type="submit"
           mt={2}
+          type="submit"
+          width="100%"
           loading={isLoading}
           loadingText="Searching..."
         >
