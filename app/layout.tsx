@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import Header from "./components/Header";
 import { Provider } from "@/app/components/snippets/Provider";
 import "./globals.css";
+import NextTopLoader from "nextjs-toploader";
 
 export const metadata: Metadata = {
   title: "Just Scripture",
@@ -17,6 +18,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <NextTopLoader />
         <Provider>
           <Header />
           {children}
