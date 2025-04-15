@@ -1,42 +1,73 @@
-import { Input, Button, Heading } from "@chakra-ui/react";
-import { RiGeminiLine } from "react-icons/ri";
+import { useState, useMemo } from "react";
+import { Input, Button, Separator } from "@chakra-ui/react";
+import Link from "next/link";
+import parse from "html-react-parser";
+import askGemini from "@/lib/gemini";
 
-type Props = {
-  isLoading: boolean;
-  handleSubmit: (event: React.FormEvent) => void;
-  query: string;
-  setQuery: (query: string) => void;
-};
+export default function AiSearch() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [geminiRes, setGeminiRes] = useState<string | undefined>("");
 
-export default function AiSearch(props: Props) {
-  const { isLoading, handleSubmit, query, setQuery } = props;
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+    const res = await askGemini(query);
+    setGeminiRes(res);
+    setIsLoading(false);
+  };
+
+  const parseRes = useMemo(() => {
+    return parse(geminiRes || "", {
+      replace: (domNode) => {
+        if (
+          domNode.type === "tag" &&
+          domNode.name === "a" &&
+          domNode.attribs?.href
+        ) {
+          return (
+            <Link
+              href={domNode.attribs.href}
+              style={{ textDecoration: "underline" }}
+            >
+              {(domNode.children[0] as any).data}
+            </Link>
+          );
+        }
+      },
+    });
+  }, [geminiRes]);
+
   return (
     <div>
-      <Heading as="h2" size="lg" mb={4}>
-        Search the Bible
-      </Heading>
       <form
         onSubmit={handleSubmit}
         aria-disabled={isLoading}
         aria-busy={isLoading}
       >
         <Input
-          placeholder="Ask a question"
+          placeholder="Ask a bible question"
           disabled={isLoading}
           size="lg"
           value={query}
           onChange={(e) => setQuery(e.target.value)} // Update state on input change
         />
         <Button
-          mt={2}
+          mt="0.5rem"
           type="submit"
           width="100%"
           loading={isLoading}
           loadingText="Searching..."
         >
-          Search <RiGeminiLine />
+          Search
         </Button>
       </form>
+      {geminiRes && (
+        <>
+          <Separator my={4} />
+          {geminiRes && parseRes}
+        </>
+      )}
     </div>
   );
 }
