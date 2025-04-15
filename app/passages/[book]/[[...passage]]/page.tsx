@@ -10,6 +10,36 @@ type ParamProps = {
   }>;
 };
 
+export async function generateMetadata({ params }: ParamProps) {
+  const { book, passage } = await params;
+
+  if (!passage) {
+    return null;
+  }
+
+  const [chapter, verses] = passage;
+  const [startVerse, endVerse] = verses?.split("-") || [];
+
+  const chapterVerses = `${chapter}${startVerse ? `:${startVerse}` : ""}${endVerse ? `-${endVerse}` : ""}`;
+
+  return {
+    title: `${book} ${chapterVerses}`,
+    description: `Read ${book} ${chapterVerses} in the ESV Bible`,
+    siteName: "JustScripture",
+    openGraph: {
+      title: `${book} ${chapterVerses}`,
+      description: `Read ${book} ${chapterVerses} in the ESV Bible`,
+      images: [
+        {
+          url: 'https://justscripture.app/logo.png',
+          width: 150,
+          height: 150,
+        },
+      ]
+    }
+  };
+}
+
 export default async function Passage({ params }: ParamProps) {
   const { book, passage } = await params;
 
