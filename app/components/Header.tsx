@@ -22,7 +22,7 @@ export default async function Header() {
             display: "flex",
           }}
         >
-          <Heading as="h1" size="2xl" color="blue.600">
+          <Heading as="h1" size="2xl" color="teal.600">
             Just Scripture
           </Heading>
         </Link>

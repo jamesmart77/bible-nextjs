@@ -8,10 +8,10 @@ export default function Home() {
       <Flex
         flexDirection="column"
         alignItems="center"
-        height="60vh"
-        justifyContent="center"
+        justifyContent={{ base: "start", lg: "center" }}
+        height={{base: 'inherit', lg: "60vh"}}
       >
-        <Box mt="3rem">
+        <Box mt={{base: "0", lg: "3rem"}}>
           <Image
             src="/logo.png"
             alt="Just scripture logo"
