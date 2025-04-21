@@ -12,7 +12,7 @@ export default async function Header() {
         borderBottomColor="gray.200"
         justifyContent="space-between"
         padding={{ base: "0.5rem", sm: "1rem" }}
-        gap={{base: "0.3rem", sm: "0.5rem"}}
+        gap={{ base: "0.3rem", sm: "0.5rem" }}
       >
         <Link
           href="/"
@@ -22,7 +22,12 @@ export default async function Header() {
             display: "flex",
           }}
         >
-          <Heading as="h1" size="2xl" color="teal.600">
+          <Heading
+            as="h1"
+            size="2xl"
+            color="teal.700"
+            style={{ textShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)" }}
+          >
             Just Scripture
           </Heading>
         </Link>

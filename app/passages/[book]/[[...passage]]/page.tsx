@@ -20,7 +20,9 @@ export async function generateMetadata({ params }: ParamProps) {
   const [chapter, verses] = passage;
   const [startVerse, endVerse] = verses?.split("-") || [];
 
-  const chapterVerses = `${chapter}${startVerse ? `:${startVerse}` : ""}${endVerse ? `-${endVerse}` : ""}`;
+  const chapterVerses = `${chapter}${startVerse ? `:${startVerse}` : ""}${
+    endVerse ? `-${endVerse}` : ""
+  }`;
 
   return {
     title: `${book} ${chapterVerses}`,
@@ -31,12 +33,12 @@ export async function generateMetadata({ params }: ParamProps) {
       description: `Read ${book} ${chapterVerses} in the ESV Bible`,
       images: [
         {
-          url: 'https://justscripture.app/logo.png',
+          url: "https://justscripture.app/logo.png",
           width: 150,
           height: 150,
         },
-      ]
-    }
+      ],
+    },
   };
 }
 
@@ -48,11 +50,13 @@ export default async function Passage({ params }: ParamProps) {
   }
 
   const passageRes = await getBiblePassage(book, passage);
-  const passageHtml = parse(passageRes, {trim: true});
+  const passageHtml = parse(passageRes, { trim: true });
 
   return (
-    <Container mt="2rem">
-      <Text>{passageHtml}</Text>
-    </Container>
+    <main>
+      <Container mt="2rem">
+        <Text as="section">{passageHtml}</Text>
+      </Container>
+    </main>
   );
 }
