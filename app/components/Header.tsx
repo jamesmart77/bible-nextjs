@@ -24,9 +24,8 @@ export default async function Header() {
         >
           <Heading
             as="h1"
-            size="2xl"
+            size={{base: "2xl", sm: "3xl"}}
             color="teal.700"
-            style={{ textShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)" }}
           >
             Just Scripture
           </Heading>

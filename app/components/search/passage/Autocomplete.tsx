@@ -5,14 +5,15 @@ import { useRef } from "react";
 import { bibleBooks } from "./bibleBooks";
 
 type AutocompleteInputProps = {
-  onSelectItem?: (item: string) => void;
   inputValue: string;
   setInputValue: (value: string) => void;
+  submitOnEnter: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
 export default function AutocompleteInput({
   inputValue,
   setInputValue,
+  submitOnEnter,
 }: AutocompleteInputProps) {
   const ref = useRef<HTMLElement>(null) as React.RefObject<HTMLElement>;
 
@@ -50,6 +51,11 @@ export default function AutocompleteInput({
         {...getInputProps({
           placeholder: "John 3:16",
           onFocus: openMenu,
+          onKeyDown: (event) => {
+            if (event.key === "Enter") {
+              submitOnEnter(event);
+            }
+          }
         })}
       />
       <Box

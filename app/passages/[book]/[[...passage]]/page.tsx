@@ -1,7 +1,8 @@
 import getBiblePassage from "@/lib/esvApi";
-import { Container, Text } from "@chakra-ui/react";
+import { Container, Text, Link as ChakraLink } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
 import parse from "html-react-parser";
+import Link from "next/link";
 
 type ParamProps = {
   params: Promise<{
@@ -34,8 +35,8 @@ export async function generateMetadata({ params }: ParamProps) {
       images: [
         {
           url: "https://justscripture.app/logo.png",
-          width: 150,
-          height: 150,
+          width: 50,
+          height: 50,
         },
       ],
     },
@@ -49,6 +50,7 @@ export default async function Passage({ params }: ParamProps) {
     return redirect(`/passages/${book}/1`);
   }
 
+  const [chapter, verses] = passage;
   const passageRes = await getBiblePassage(book, passage);
   const passageHtml = parse(passageRes, { trim: true });
 
@@ -56,6 +58,11 @@ export default async function Passage({ params }: ParamProps) {
     <main>
       <Container mt="2rem">
         <Text as="section">{passageHtml}</Text>
+        {verses && (
+          <ChakraLink asChild fontSize="sm" mt="1rem" variant="underline">
+            <Link href={`/passages/${book}/${chapter}`}>Read full chapter</Link>
+          </ChakraLink>
+        )}
       </Container>
     </main>
   );

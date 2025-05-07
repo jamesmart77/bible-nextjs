@@ -46,7 +46,7 @@ export default function PassageSearch() {
         <AutocompleteInput
           inputValue={inputValue}
           setInputValue={setInputValue}
-          onSelectItem={(book) => console.log("Selected book:", book)}
+          submitOnEnter={handleSubmit}
         />
         <Button
           mt="0.5rem"
