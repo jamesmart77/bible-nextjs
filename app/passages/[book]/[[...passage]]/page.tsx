@@ -1,8 +1,9 @@
-import getBiblePassage from "@/lib/esvApi";
+import { getBiblePassage, navigateToChapter } from "@/lib/esvApi";
 import { Container, Text, Link as ChakraLink } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
 import parse from "html-react-parser";
 import Link from "next/link";
+import ActionsBar from "@/app/components/utilities/ActionsBar";
 
 type ParamProps = {
   params: Promise<{
@@ -25,13 +26,15 @@ export async function generateMetadata({ params }: ParamProps) {
     endVerse ? `-${endVerse}` : ""
   }`;
 
+  const capitalizedBook = book.charAt(0).toUpperCase() + book.slice(1);
+
   return {
-    title: `${book} ${chapterVerses}`,
-    description: `Read ${book} ${chapterVerses} in the ESV Bible`,
+    title: `${capitalizedBook} ${chapterVerses}`,
+    description: `Read ${capitalizedBook} ${chapterVerses} in the ESV Bible`,
     siteName: "JustScripture",
     openGraph: {
-      title: `${book} ${chapterVerses}`,
-      description: `Read ${book} ${chapterVerses} in the ESV Bible`,
+      title: `${capitalizedBook} ${chapterVerses}`,
+      description: `Read ${capitalizedBook} ${chapterVerses} in the ESV Bible`,
       images: [
         {
           url: "https://justscripture.app/logo.png",
@@ -51,8 +54,11 @@ export default async function Passage({ params }: ParamProps) {
   }
 
   const [chapter, verses] = passage;
-  const passageRes = await getBiblePassage(book, passage);
-  const passageHtml = parse(passageRes, { trim: true });
+  const { passageText, previousChapter, nextChapter } = await getBiblePassage(
+    book,
+    passage
+  );
+  const passageHtml = parse(passageText, { trim: true });
 
   return (
     <main>
@@ -64,6 +70,11 @@ export default async function Passage({ params }: ParamProps) {
           </ChakraLink>
         )}
       </Container>
+      <ActionsBar
+        navigateToChapter={navigateToChapter}
+        previousChapter={previousChapter}
+        nextChapter={nextChapter}
+      />
     </main>
   );
 }

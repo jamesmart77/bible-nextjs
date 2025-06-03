@@ -1,6 +1,18 @@
 "use server";
+import { redirect } from "next/navigation";
 
-export default async function getBiblePassage(book: string, passage: string[]) {
+function getReqOptions() {
+  return {
+    method: "GET",
+    cache: "force-cache" as RequestCache,
+    headers: {
+      Authorization: `Token ${process.env.ESV_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+  };
+}
+
+export async function getBiblePassage(book: string, passage: string[]) {
   const [chapter, verses] = passage;
   const [startVerse, endVerse] = verses?.split("-") || [];
 
@@ -8,18 +20,11 @@ export default async function getBiblePassage(book: string, passage: string[]) {
     `${book}+`,
     chapter,
     startVerse ? `:${startVerse}` : "",
-    endVerse ? `-${endVerse}` : ""
+    endVerse ? `-${endVerse}` : "",
   ].join("");
 
-  const url = `https://api.esv.org/v3/passage/html/?q=${query}`;
-  const options = {
-    method: "GET",
-    cache: 'force-cache' as RequestCache,
-    headers: {
-      Authorization: `Token ${process.env.ESV_API_KEY}`,
-      "Content-Type": "application/json",
-    }
-  };
+  const url = `https://api.esv.org/v3/passage/html/?q=${query}&include-crossrefs=true`;
+  const options = getReqOptions();
 
   try {
     const response = await fetch(url, options);
@@ -27,10 +32,50 @@ export default async function getBiblePassage(book: string, passage: string[]) {
       throw new Error(`Error fetching bible passage: ${response.statusText}`);
     }
     const data = await response.json();
-    const passage = data.passages[0];
-    return passage;
+    const [prevStart, prevEnd] = data.passage_meta[0].prev_chapter || [];
+    const [nextStart, nextEnd] = data.passage_meta[0].next_chapter || [];
+    return {
+      passageText: data.passages[0],
+      canonical: data.canonical,
+      previousChapter: prevStart ? `${prevStart}-${prevEnd}` : null,
+      nextChapter: nextStart ? `${nextStart}-${nextEnd}` : null,
+    };
   } catch (error) {
-    console.error("Error fetching Bible passage:", error);
+    console.error("Error parsing Bible passage:", error);
     throw error;
   }
+}
+
+async function getChapterCanonical(ref: string) {
+  const url = `https://api.esv.org/v3/passage/html/?q=${ref}`;
+  const options = getReqOptions();
+
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(
+        `Error fetching chapter canonical: ${response.statusText}`
+      );
+    }
+    const data = await response.json();
+
+    return data.canonical;
+  } catch (error) {
+    console.error("Error parsing chapter canonical:", error);
+    throw error;
+  }
+}
+
+export async function navigateToChapter(
+  chapter: string | null
+) {
+  if (!chapter) return;
+
+  const canonical = await getChapterCanonical(chapter);
+  const [canonicalBook, canonicalPassage] = canonical.split(" ");
+  const [canonicalChapter, canonicalVerses] = canonicalPassage.split(":");
+  const redirectUrl = `/passages/${canonicalBook}/${canonicalChapter}${
+    canonicalVerses ? `/${canonicalVerses}` : ""
+  }`;
+  redirect(redirectUrl);
 }
