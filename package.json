@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --experimental-https",
-    "build": "npm run db:migrate && next build",
-    "db:migrate": "supabase db push",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
