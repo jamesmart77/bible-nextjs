@@ -3,15 +3,18 @@ import { useEffect, useRef, useState } from "react";
 import { Portal, ActionBar, IconButton } from "@chakra-ui/react";
 import { FaHistory } from "react-icons/fa";
 import { FaAngleLeft, FaAngleRight, FaRegCirclePlay } from "react-icons/fa6";
+import { SessionData } from "@auth0/nextjs-auth0/types";
 
 type Props = {
   navigateToChapter: (chapter: string | null) => Promise<void>;
   previousChapter: string | null;
   nextChapter: string | null;
+  userSession: SessionData | null;
 };
 
 export default function ActionsBar(props: Props) {
-  const { navigateToChapter, previousChapter, nextChapter } = props;
+  const { navigateToChapter, previousChapter, nextChapter, userSession } =
+    props;
   const [isPrevLoading, setIsPrevLoading] = useState(false);
   const [isNextLoading, setIsNextLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
@@ -59,16 +62,20 @@ export default function ActionsBar(props: Props) {
             >
               <FaAngleLeft />
             </IconButton>
-            <ActionBar.Separator />
-            <IconButton
-              disabled
-              variant="outline"
-              aria-label="View search history"
-              title="View search history"
-              rounded="full"
-            >
-              <FaHistory />
-            </IconButton>
+            {userSession && (
+              <>
+                <ActionBar.Separator />
+                <IconButton
+                  disabled
+                  variant="outline"
+                  aria-label="View search history"
+                  title="View search history"
+                  rounded="full"
+                >
+                  <FaHistory />
+                </IconButton>
+              </>
+            )}
             <ActionBar.Separator />
             <IconButton
               disabled
