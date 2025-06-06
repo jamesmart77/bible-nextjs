@@ -22,11 +22,7 @@ export default async function Header() {
             display: "flex",
           }}
         >
-          <Heading
-            as="h1"
-            size={{base: "2xl", sm: "3xl"}}
-            color="teal.700"
-          >
+          <Heading as="h1" size={{ base: "2xl", sm: "3xl" }} color="teal.700">
             Just Scripture
           </Heading>
         </Link>
@@ -41,12 +37,13 @@ export default async function Header() {
               </Button>
             </>
           ) : (
-            <HStack>
-              <Text>Welcome, {session.user.name}!</Text>
-              <Button asChild variant="ghost">
-                <a href="/auth/logout">Log out</a>
-              </Button>
-            </HStack>
+            <Button asChild variant="ghost">
+              <a href="/account">Account</a>
+            </Button>
+            // {/* <Text>Welcome, {session.user.name}!</Text> */}
+            // {/* <Button asChild variant="ghost">
+            //   <a href="/auth/logout">Log out</a>
+            // </Button> */}
           )}
         </div>
       </Flex>
