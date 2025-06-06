@@ -15,7 +15,7 @@ export default function Home() {
         <Fade duration={750} triggerOnce>
           <Box mt={{ base: "0", lg: "3rem" }}>
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt="Just scripture logo"
               width={125}
               height={125}
@@ -27,7 +27,7 @@ export default function Home() {
           </Box>
         </Fade>
         <Box p="0.5rem" textAlign="center">
-          <Text mt="0.5rem" fontSize="0.9rem" style={{ fontStyle: "italic" }}>
+          <Text mt="0.5rem" fontSize="0.9rem" fontStyle="italic">
             The law of the LORD is perfect, reviving the soul. (Psalm 19:7)
           </Text>
         </Box>

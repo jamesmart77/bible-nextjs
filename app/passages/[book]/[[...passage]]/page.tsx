@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: ParamProps) {
       description: `Read ${capitalizedBook} ${chapterVerses} in the ESV Bible`,
       images: [
         {
-          url: "https://justscripture.app/logo.png",
+          url: "https://justscripture.app/logo.webp",
           width: 50,
           height: 50,
         },

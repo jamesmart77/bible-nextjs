@@ -76,7 +76,7 @@ export default function AutocompleteInput({
             filteredBooks.map((book, index) => (
               <List.Item
                 key={`${book}-${index}`}
-                bg={highlightedIndex === index ? "teal.200" : "transparent"}
+                bg={highlightedIndex === index ? "#A6ADB0" : "transparent"}
                 px={4}
                 py={2}
                 cursor="pointer"

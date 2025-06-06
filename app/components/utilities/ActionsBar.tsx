@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Portal, ActionBar, IconButton } from "@chakra-ui/react";
 import { FaHistory } from "react-icons/fa";
 import { FaAngleLeft, FaAngleRight, FaRegCirclePlay } from "react-icons/fa6";
@@ -14,10 +14,31 @@ export default function ActionsBar(props: Props) {
   const { navigateToChapter, previousChapter, nextChapter } = props;
   const [isPrevLoading, setIsPrevLoading] = useState(false);
   const [isNextLoading, setIsNextLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+
+  // Track previous scroll position
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current) {
+        // Scrolling down
+        setIsOpen(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        // Scrolling up
+        setIsOpen(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <ActionBar.Root
-      open
+      open={isOpen}
       autoFocus={false}
       closeOnEscape={false}
       closeOnInteractOutside={false}
