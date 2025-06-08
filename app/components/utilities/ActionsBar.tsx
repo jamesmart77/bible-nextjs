@@ -1,6 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Portal, ActionBar, IconButton } from "@chakra-ui/react";
+import {
+  Portal,
+  ActionBar,
+  IconButton,
+  Popover,
+  Text,
+  Button,
+} from "@chakra-ui/react";
 import { FaHistory } from "react-icons/fa";
 import { FaAngleLeft, FaAngleRight, FaRegCirclePlay } from "react-icons/fa6";
 import { SessionData } from "@auth0/nextjs-auth0/types";
@@ -10,14 +17,22 @@ type Props = {
   previousChapter: string | null;
   nextChapter: string | null;
   userSession: SessionData | null;
+  passageUrl: string;
 };
 
 export default function ActionsBar(props: Props) {
-  const { navigateToChapter, previousChapter, nextChapter, userSession } =
-    props;
+  const {
+    navigateToChapter,
+    previousChapter,
+    nextChapter,
+    userSession,
+    passageUrl,
+  } = props;
+
   const [isPrevLoading, setIsPrevLoading] = useState(false);
   const [isNextLoading, setIsNextLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
+  const [isPopOverOpen, setIsPopOverOpen] = useState(false);
 
   // Track previous scroll position
   const lastScrollY = useRef(0);
@@ -62,18 +77,50 @@ export default function ActionsBar(props: Props) {
             >
               <FaAngleLeft />
             </IconButton>
-            {userSession && (
+            <ActionBar.Separator />
+            {userSession ? (
+              <IconButton
+                disabled
+                variant="outline"
+                aria-label="View search history"
+                title="View search history"
+                rounded="full"
+              >
+                <FaHistory />
+              </IconButton>
+            ) : (
               <>
-                <ActionBar.Separator />
-                <IconButton
-                  disabled
-                  variant="outline"
-                  aria-label="View search history"
-                  title="View search history"
-                  rounded="full"
+                <Popover.Root
+                  open={isPopOverOpen}
+                  onOpenChange={(e) => setIsPopOverOpen(e.open)}
                 >
-                  <FaHistory />
-                </IconButton>
+                  <Popover.Trigger asChild>
+                    <IconButton
+                      onClick={() => setIsPopOverOpen(true)}
+                      variant="outline"
+                      aria-label="Login to view search history"
+                      title="Login to view search history"
+                      rounded="full"
+                    >
+                      <FaHistory />
+                    </IconButton>
+                  </Popover.Trigger>
+                  <Portal>
+                    <Popover.Positioner>
+                      <Popover.Content>
+                        <Popover.Arrow />
+                        <Popover.Body textAlign="center">
+                          <Text fontSize="md">
+                            Log in to view your search history.
+                          </Text>
+                          <Button asChild variant="surface" mt={2}>
+                            <a href={`/auth/login?returnTo=${passageUrl}`}>Log in</a>
+                          </Button>
+                        </Popover.Body>
+                      </Popover.Content>
+                    </Popover.Positioner>
+                  </Portal>
+                </Popover.Root>
               </>
             )}
             <ActionBar.Separator />

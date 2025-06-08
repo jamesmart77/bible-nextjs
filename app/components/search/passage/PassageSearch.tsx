@@ -3,15 +3,19 @@ import { Button } from "@chakra-ui/react";
 import AutocompleteInput from "./Autocomplete";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { saveSearchQuery } from "@/lib/db";
 
 export default function PassageSearch() {
   const router = useRouter();
   const [inputValue, setInputValue] = useState("");
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const trimmed = inputValue.trim();
+    let trimmedQuery = inputValue.trim();
+
+    // Uppercase the first letter present
+    trimmedQuery = trimmedQuery.replace(/([A-Za-z])/, (m) => m.toUpperCase());
 
     // Regex breakdown:
     // - `^(\d?\s?[A-Za-z]+(?:\s[A-Za-z]+)*)`: book name like "1 John"
@@ -19,7 +23,7 @@ export default function PassageSearch() {
     // - `(?::(\d+(?:-\d+)?))?`: optional verse or range
     const regex =
       /^(\d?\s?[A-Za-z]+(?:\s[A-Za-z]+)*)(?:\s+(\d+))?(?::(\d+(?:-\d+)?))?$/;
-    const match = trimmed.match(regex);
+    const match = trimmedQuery.match(regex);
 
     if (!match) {
       console.error("Invalid input format");
@@ -36,6 +40,8 @@ export default function PassageSearch() {
         url += `/${verses}`;
       }
     }
+
+    await saveSearchQuery(trimmedQuery, "passage");
 
     router.push(url);
   };

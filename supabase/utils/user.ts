@@ -1,3 +1,4 @@
+'use server';
 import supabaseClient from "./schema";
 
 export type User = {
@@ -29,21 +30,24 @@ export async function getUserByEmail(
 
 export async function createUser(
   email: string
-): Promise<User | null> {
+): Promise<{ status: 201 | 302 | 500 }> {
   const { data, error } = await supabaseClient
     .from('user')
     .upsert({ email }, { onConflict: 'email', ignoreDuplicates: true })
     .select('id, email')
     .single();
 
-  if (error) {
-    error.details === 'The result contains 0 rows' ?
-      console.warn(`User with email ${email} likely already exists. Skipping...`) :
-      console.error(`Error creating user ${email}:`, error);
-    return null;
+  if (error?.details === 'The result contains 0 rows') {
+    console.warn(`User with email ${email} likely already exists. Skipping...`);
+    return { status: 302 }; 
   }
 
-  return data;
+  if (error) {
+    console.error(`Error creating user ${email}:`, error);
+    return { status: 500 };
+  }
+
+  return {status: 201};
 }
 
 export async function getUserSearchHistory(

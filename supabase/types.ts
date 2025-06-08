@@ -17,18 +17,25 @@ export type Database = {
           id: number
           query: string
           user_id: number
+          querytype: string
+          queryres: string | null
+
         }
         Insert: {
           created_at?: string
           id?: number
           query: string
           user_id: number
+          querytype: string
+          queryres: string | null
         }
         Update: {
           created_at?: string
           id?: number
           query?: string
           user_id?: number
+          querytype: string
+          queryres: string | null
         }
         Relationships: [
           {

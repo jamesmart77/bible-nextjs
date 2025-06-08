@@ -3,6 +3,7 @@ import { Input, Button, Separator } from "@chakra-ui/react";
 import Link from "next/link";
 import parse from "html-react-parser";
 import askGemini from "@/lib/gemini";
+import { saveSearchQuery } from "@/lib/db";
 
 export default function AiSearch() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,9 +13,12 @@ export default function AiSearch() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
-    const res = await askGemini(query);
+    const formattedQuery = query.charAt(0).toUpperCase() + query.slice(1);
+    const res = await askGemini(formattedQuery);
     setGeminiRes(res);
     setIsLoading(false);
+
+    await saveSearchQuery(query, "ai", res);
   };
 
   const parseRes = useMemo(() => {
@@ -46,11 +50,11 @@ export default function AiSearch() {
         aria-busy={isLoading}
       >
         <Input
+          size="lg"
           placeholder="Ask a bible question"
           disabled={isLoading}
-          size="lg"
           value={query}
-          onChange={(e) => setQuery(e.target.value)} // Update state on input change
+          onChange={(e) => setQuery(e.target.value)}
         />
         <Button
           mt="0.5rem"

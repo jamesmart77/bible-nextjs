@@ -33,18 +33,16 @@ export async function generateMetadata({ params }: ParamProps) {
     endVerse ? `-${endVerse}` : ""
   }`;
 
-  const capitalizedBook = book.charAt(0).toUpperCase() + book.slice(1);
-
   return {
-    title: `${capitalizedBook} ${chapterVerses}`,
-    description: `Read ${capitalizedBook} ${chapterVerses} in the ESV Bible`,
+    title: `${book} ${chapterVerses}`,
+    description: `Read ${book} ${chapterVerses} in the ESV Bible`,
     siteName: "JustScripture",
     openGraph: {
-      title: `${capitalizedBook} ${chapterVerses}`,
-      description: `Read ${capitalizedBook} ${chapterVerses} in the ESV Bible`,
+      title: `${book} ${chapterVerses}`,
+      description: `Read ${book} ${chapterVerses} in the ESV Bible`,
       images: [
         {
-          url: "https://justscripture.app/logo.webp",
+          url: "https://www.justscripture.app/logo.webp",
           width: 50,
           height: 50,
         },
@@ -66,9 +64,11 @@ export default async function Passage({ params }: ParamProps) {
     book,
     passage
   );
+  const passageUrl = `/passages/${book}/${chapter}${
+    verses ? `/${verses}` : ""
+  }`;
 
   const options: HTMLReactParserOptions = {
-    trim: true,
     replace: (domNode) => {
       if (domNode.type === "tag" && domNode.name === "h2") {
         return (
@@ -92,6 +92,7 @@ export default async function Passage({ params }: ParamProps) {
         return <Text as="span">{domNode.data}</Text>;
       }
 
+      // footnotes formatting
       if (
         domNode.type === "tag" &&
         domNode.name === "div" &&
@@ -128,6 +129,7 @@ export default async function Passage({ params }: ParamProps) {
         previousChapter={previousChapter}
         nextChapter={nextChapter}
         userSession={session}
+        passageUrl={passageUrl}
       />
     </main>
   );
