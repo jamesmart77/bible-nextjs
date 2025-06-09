@@ -30,7 +30,7 @@ export async function getUserByEmail(
 
 export async function createUser(
   email: string
-): Promise<{ status: 201 | 302 | 500 }> {
+): Promise<{ status: 201 | 302 | 500, user?: User }> {
   const { data, error } = await supabaseClient
     .from('user')
     .upsert({ email }, { onConflict: 'email', ignoreDuplicates: true })
@@ -47,7 +47,7 @@ export async function createUser(
     return { status: 500 };
   }
 
-  return {status: 201};
+  return {status: 201, user: data};
 }
 
 export async function getUserSearchHistory(

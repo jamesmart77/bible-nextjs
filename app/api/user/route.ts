@@ -1,7 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
-import { createUser } from "@/supabase/utils/user";
+import { createUser, getUserByEmail } from "@/supabase/utils/user";
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
+import { saveSearchHistory } from "@/supabase/utils/searchHistory";
+
+type RegisterUserType = {
+  email: string;
+  passageContext?: string;
+};
 
 const client = jwksClient({
   jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
@@ -18,8 +24,44 @@ function getKey(header: jwt.JwtHeader, callback: (err: Error | null, signingKey?
   });
 }
 
+function formatPassageContext(passagePath: string): string | null {
+  const passageContext = passagePath.split('/passages')[1];
+  const match = passageContext.match(/^\/([^\/]+)\/(\d+)(?:\/(\d+)(?:-(\d+))?)?$/);
+  if (match) {
+    const [, book, chapter, startverse, endverse] = match;
+    let formattedPassage = `${book} ${chapter}`;
+    if (startverse) {
+      formattedPassage += `:${startverse}`;
+      if (endverse) {
+        formattedPassage += `-${endverse}`;
+      }
+    }
+    return formattedPassage;
+  }
+  return null;
+}
+
+async function savePassageSearch(email: string, userId?: number, passageContext?: string) {
+  const formattedPassage = formatPassageContext(passageContext || '');
+  if (!passageContext || passageContext === '/' || !formattedPassage) {
+    return;
+  }
+
+  let userRecordId = userId;
+  if (!userRecordId) {
+    // this would only occur if the user was already registered so no userId was returned on createUser
+    const user = await getUserByEmail(email);
+    userRecordId = user?.id;
+  }
+
+  if (userRecordId && formattedPassage) {
+    await saveSearchHistory(userRecordId, formattedPassage, 'passage');
+  }
+
+}
+
 export async function POST(req: NextRequest) {
-  const { email }: { email: string } = await req.json();
+  const { email, passageContext }: RegisterUserType = await req.json();
 
   const authHeader = req.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -55,8 +97,13 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: 'Unauthorized action attempted.' }, { status: 403 });
       }
 
-      const { status } = await createUser(tokenEmail);
-      return NextResponse.json({ status }, { status: 200 });
+      const { status, user } = await createUser(tokenEmail);
+
+      if (status === 201 || status === 302) {
+        await savePassageSearch(tokenEmail, user?.id, passageContext);
+      }
+
+      return NextResponse.json({ user }, { status });
     } else {
       return NextResponse.json({ message: 'Email not found in token' }, { status: 400 });
     }
