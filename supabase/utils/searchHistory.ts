@@ -1,4 +1,4 @@
-import supabaseClient from "./schema";
+import supabaseClient from "./client";
 
 export type DbRes = {
   status: 200 | 400;

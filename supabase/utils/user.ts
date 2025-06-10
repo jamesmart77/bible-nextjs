@@ -1,5 +1,5 @@
 'use server';
-import supabaseClient from "./schema";
+import supabaseClient from "./client";
 
 export type User = {
   id: number;
@@ -7,7 +7,10 @@ export type User = {
 }
 
 export type SearchHistory = {
+  id: number; 
   query: string; 
+  queryType: string; 
+  queryRes: string | null; 
   createdAt: string;
 }
 
@@ -55,7 +58,7 @@ export async function getUserSearchHistory(
 ): Promise<SearchHistory[]> {
   const { data, error } = await supabaseClient
     .from('search_history')
-    .select('query, createdAt:created_at')
+    .select('id, query, queryType:querytype, queryRes:queryres, createdAt:created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
