@@ -8,9 +8,11 @@ import { saveSearchQuery } from "@/lib/db";
 export default function PassageSearch() {
   const router = useRouter();
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
 
     let trimmedQuery = inputValue.trim();
 
@@ -58,6 +60,7 @@ export default function PassageSearch() {
           mt="0.5rem"
           type="submit"
           width="100%"
+          loading={isLoading}
           loadingText="Searching..."
         >
           Search

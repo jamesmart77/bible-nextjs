@@ -26,7 +26,7 @@ type Props = {
 };
 
 export default function SearchHistory({ searchHistory, open, setOpen }: Props) {
-  const PassageHistory = ({item}: {item: SearchHistoryType}) => {
+  const PassageHistory = ({ item }: { item: SearchHistoryType }) => {
     // Handle formats: "John", "John 3", "John 3:16", "John 3:16-17"
     let url: string | null = null;
     const passageRegex = /^([\w\s]+?)(?:\s+(\d+))?(?::(\d+)(?:-(\d+))?)?$/;
@@ -109,7 +109,24 @@ export default function SearchHistory({ searchHistory, open, setOpen }: Props) {
                           </Accordion.ItemTrigger>
                           <Accordion.ItemContent>
                             <Accordion.ItemBody>
-                              {parse(item.queryRes || '')}
+                              {parse(item.queryRes || "", {
+                                replace: (domNode) => {
+                                  if (
+                                    domNode.type === "tag" &&
+                                    domNode.name === "a" &&
+                                    domNode.attribs?.href
+                                  ) {
+                                    return (
+                                      <Link
+                                        href={domNode.attribs.href}
+                                        style={{ textDecoration: "underline" }}
+                                      >
+                                        {(domNode.children[0] as any).data}
+                                      </Link>
+                                    );
+                                  }
+                                },
+                              })}
                             </Accordion.ItemBody>
                           </Accordion.ItemContent>
                         </Accordion.Item>

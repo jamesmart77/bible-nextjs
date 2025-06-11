@@ -16,7 +16,7 @@ export type SearchHistory = {
 
 export async function getUserByEmail(
   email: string
-): Promise<User | null> {
+): Promise<User | undefined> {
   const { data, error } = await supabaseClient
     .from('user')
     .select('id, email')
@@ -25,7 +25,7 @@ export async function getUserByEmail(
 
   if (error) {
     console.error('Error fetching user by email:', error);
-    return null;
+    return undefined;
   }
 
   return data;

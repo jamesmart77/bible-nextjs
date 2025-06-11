@@ -14,7 +14,7 @@ async function registerUser(session: SessionData, passageContext?: string){
 
     const data = await res.json();
     
-    if (res.status === 201 || res.status === 302) {
+    if (res.status === 201) {
       return;
     }
 
@@ -32,6 +32,7 @@ export const auth0 = new Auth0Client({
     try {
       await registerUser(session, context.returnTo || '/');
     } catch (err) {
+      console.error("Error during user registration:", err);
       const errorMsg = encodeURIComponent("Error occurred during user signin and registration.");
       return NextResponse.redirect(
         new URL(`/error?error=${errorMsg}`, process.env.APP_BASE_URL)
