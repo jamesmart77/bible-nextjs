@@ -12,7 +12,7 @@ import { FaHistory } from "react-icons/fa";
 import { FaAngleLeft, FaAngleRight, FaRegCirclePlay } from "react-icons/fa6";
 import { SessionData } from "@auth0/nextjs-auth0/types";
 import { SearchHistory as SearchHistoryType } from "@/supabase/utils/user";
-import SearchHistory from "./SearchHistory";
+import SearchHistory from "./searchHistory/SearchHistory";
 
 type Props = {
   navigateToChapter: (chapter: string | null) => Promise<void>;

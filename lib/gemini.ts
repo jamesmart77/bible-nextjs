@@ -15,7 +15,7 @@ export default async function askGemini(query: string) {
     config: {
       systemInstruction,
       temperature: 0.5,
-      maxOutputTokens: 750,
+      maxOutputTokens: 1000,
     },
   });
   return response.text;
