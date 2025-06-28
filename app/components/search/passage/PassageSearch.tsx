@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@chakra-ui/react";
 import AutocompleteInput from "./Autocomplete";
 import { useState } from "react";
@@ -8,17 +9,13 @@ import { saveSearchQuery } from "@/lib/db";
 export default function PassageSearch() {
   const router = useRouter();
   const [inputValue, setInputValue] = useState("");
+  const [searchType, setSearchType] = useState<"passage" | "keyword">(
+    "passage"
+  );
+  const [isExactPhrase, setIsExactPhrase] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setIsLoading(true);
-
-    let trimmedQuery = inputValue.trim();
-
-    // Uppercase the first letter present
-    trimmedQuery = trimmedQuery.replace(/([A-Za-z])/, (m) => m.toUpperCase());
-
+  const handlePassageSearch = (trimmedQuery: string): string | undefined => {
     // Regex breakdown:
     // - `^(\d?\s?[A-Za-z]+(?:\s[A-Za-z]+)*)`: book name like "1 John"
     // - `(?:\s+(\d+))?`: optional chapter
@@ -43,9 +40,31 @@ export default function PassageSearch() {
       }
     }
 
-    await saveSearchQuery(trimmedQuery, "passage");
+    return url;
+  };
 
-    router.push(url);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+
+    // Uppercase the first letter present
+    const trimmedQuery = inputValue
+      .trim()
+      .replace(/([A-Za-z])/, (m) => m.toUpperCase());
+
+    let url: string | undefined = undefined;
+
+    if (searchType === "passage") {
+      url = handlePassageSearch(trimmedQuery);
+    } else if (searchType === "keyword") {
+      url = `/keyword/${encodeURIComponent(trimmedQuery)}?isExact=${isExactPhrase}`;
+    }
+
+    if (url) {
+      await saveSearchQuery(trimmedQuery, searchType);
+
+      router.push(url);
+    }
   };
 
   return (
@@ -55,6 +74,10 @@ export default function PassageSearch() {
           inputValue={inputValue}
           setInputValue={setInputValue}
           submitOnEnter={handleSubmit}
+          searchType={searchType}
+          setSearchType={setSearchType}
+          isExactPhrase={isExactPhrase}
+          setIsExactPhrase={setIsExactPhrase}
         />
         <Button
           mt="0.5rem"

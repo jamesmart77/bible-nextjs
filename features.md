@@ -1,0 +1,8 @@
+- 6 month login timeframe
+- pop up for logging in
+- search on scripture page
+- search on keyword page
+- keyword search
+- save keyword search
+- "read full chapter" then using chapter nav bug
+- Error page for irretrievable passage

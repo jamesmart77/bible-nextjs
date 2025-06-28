@@ -4,7 +4,7 @@ import { Box, Flex, Button } from "@chakra-ui/react";
 import { useState } from "react";
 import AiSearch from "./AiSearch";
 import PassageSearch from "./passage/PassageSearch";
-import { RiGeminiLine } from "react-icons/ri";
+import { RiBookmarkLine, RiGeminiLine } from "react-icons/ri";
 
 export default function SearchOptions() {
   const [searchType, setSearchType] = useState<"passage" | "ai">("passage");
@@ -12,13 +12,10 @@ export default function SearchOptions() {
   const isPassageSearch = searchType === "passage";
   return (
     <Box
-      mt="3rem"
       p="2rem"
-      borderTop="1px solid"
-      borderColor="gray.300"
       minWidth={{ base: "90%", md: "70%", lg: "60%" }}
     >
-      <Flex justifyContent="space-between" mb="2rem">
+      <Flex justifyContent="space-between" mb="2rem" aria-label="select search type">
         <Button
           color="gray.800"
           width={isPassageSearch ? "50%" : "48%"}
@@ -29,7 +26,7 @@ export default function SearchOptions() {
             backgroundColor: !isPassageSearch ? "gray.100" : "gray.300"
           }}
         >
-          Passage search
+          <RiBookmarkLine /> Scripture search
         </Button>
         <Button
           color="gray.800"
@@ -41,7 +38,7 @@ export default function SearchOptions() {
             backgroundColor: isPassageSearch ? "gray.100" : "gray.300"
           }}
         >
-          Smart search <RiGeminiLine />
+          <RiGeminiLine /> Smart search 
         </Button>
       </Flex>
       {isPassageSearch ? <PassageSearch /> : <AiSearch />}

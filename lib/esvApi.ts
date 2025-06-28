@@ -1,4 +1,5 @@
 "use server";
+
 import { redirect } from "next/navigation";
 
 function getReqOptions() {
@@ -27,11 +28,11 @@ export async function getBiblePassage(book: string, passage: string[]) {
   const options = getReqOptions();
 
   try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      throw new Error(`Error fetching bible passage: ${response.statusText}`);
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      throw new Error(`Error fetching bible passage. Status: ${res.statusText}. Code: ${res.status}`);
     }
-    const data = await response.json();
+    const data = await res.json();
     const [prevStart, prevEnd] = data.passage_meta[0].prev_chapter || [];
     const [nextStart, nextEnd] = data.passage_meta[0].next_chapter || [];
     return {
@@ -78,4 +79,31 @@ export async function navigateToChapter(
     canonicalVerses ? `/${canonicalVerses}` : ""
   }`;
   redirect(redirectUrl);
+}
+
+type KeywordSearchResult = {
+  results: {
+    reference: string;
+    content: string;
+  }[];
+  page: number;
+  total_results: number;
+  total_pages: number;
+};
+
+export async function getKeywordResults(query: string, pageNumber?: number) {
+  const options = getReqOptions();
+    const page = pageNumber || 1;
+    console.log("query: ", query);
+    const res = await fetch(`https://api.esv.org/v3/passage/search/?q=${query}&page-size=50&page=${page}`, options);
+
+    if (!res.ok) {
+      throw new Error(`Error fetching keyword search. Status: ${res.statusText}. Code: ${res.status}`);
+    }
+
+    const data: KeywordSearchResult = await res.json();
+    
+    if (data.results.length === 0 ) throw new Error(`Invalid search. Query: ${query}`);
+    
+    return data;
 }

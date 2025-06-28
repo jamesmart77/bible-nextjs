@@ -5,15 +5,15 @@ import SearchOptions from "./components/search/SearchOptions";
 
 export default function Home() {
   return (
-    <main>
-      <Fade duration={750} triggerOnce>
+    <main style={{ height: "100vh" }}>
+      <Fade duration={750} triggerOnce style={{ height: "100vh" }}>
         <Flex
           flexDirection="column"
           alignItems="center"
-          justifyContent={{ base: "start", lg: "center" }}
-          height={{ base: "inherit", lg: "60vh" }}
+          justifyContent={{ base: "start", sm: "center" }}
+          height={{ base: "inherit", sm: "70vh" }}
         >
-          <Box mt={{ base: "0", lg: "3rem" }}>
+          <Box mt={{ base: "2rem", sm: "3rem" }}>
             <Image
               src="/logo.webp"
               alt="Just scripture logo"
@@ -24,11 +24,6 @@ export default function Home() {
                 objectFit: "none",
               }}
             />
-          </Box>
-          <Box p="0.5rem" textAlign="center">
-            <Text mt="0.5rem" fontSize="0.9rem" fontStyle="italic">
-              The law of the LORD is perfect, reviving the soul. (Psalm 19:7)
-            </Text>
           </Box>
           <SearchOptions />
         </Flex>

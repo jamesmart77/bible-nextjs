@@ -1,20 +1,31 @@
-import { useCombobox } from "downshift";
-import { Box, Input, List } from "@chakra-ui/react";
-import { useOutsideClick } from "@chakra-ui/react-use-outside-click";
 import { useRef } from "react";
+import { useCombobox } from "downshift";
+import { Box, Input, InputGroup, List } from "@chakra-ui/react";
+import { useOutsideClick } from "@chakra-ui/react-use-outside-click";
 import { bibleBooks } from "./bibleBooks";
+import SearchTypSettings from "./SearchTypeSettings";
 
-type AutocompleteInputProps = {
+type Props = {
   inputValue: string;
+  searchType: string;
+  isExactPhrase: boolean;
   setInputValue: (value: string) => void;
+  setSearchType: (value: 'passage' | 'keyword') => void;
+  setIsExactPhrase: (value: boolean) => void;
   submitOnEnter: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
-export default function AutocompleteInput({
-  inputValue,
-  setInputValue,
-  submitOnEnter,
-}: AutocompleteInputProps) {
+export default function AutocompleteInput(props: Props) {
+  const {
+    inputValue,
+    setInputValue,
+    searchType,
+    setSearchType,
+    isExactPhrase,
+    setIsExactPhrase,
+    submitOnEnter,
+  } = props;
+
   const ref = useRef<HTMLElement>(null) as React.RefObject<HTMLElement>;
 
   const filteredBooks = bibleBooks.filter((book) =>
@@ -47,46 +58,61 @@ export default function AutocompleteInput({
 
   return (
     <Box position="relative" width="100%" ref={ref}>
-      <Input
-        {...getInputProps({
-          placeholder: "John 3:16",
-          onFocus: openMenu,
-          onKeyDown: (event) => {
-            if (event.key === "Enter") {
-              submitOnEnter(event);
-            }
-          }
-        })}
-      />
-      <Box
-        {...getMenuProps()}
-        position="absolute"
-        width="100%"
-        mt={1}
-        bg="white"
-        borderWidth={1}
-        borderColor="gray.200"
-        borderRadius="md"
-        boxShadow="sm"
-        zIndex={10}
-        display={isOpen && bibleBooks.length > 0 ? "block" : "none"}
+      <InputGroup
+        flex="1"
+        endElement={
+          <SearchTypSettings
+            searchType={searchType}
+            setSearchType={setSearchType}
+            isExactPhrase={isExactPhrase}
+            setIsExactPhrase={setIsExactPhrase}
+          />
+        }
       >
-        <List.Root maxH="200px" overflowY="auto">
-          {isOpen &&
-            filteredBooks.map((book, index) => (
-              <List.Item
-                key={`${book}-${index}`}
-                bg={highlightedIndex === index ? "#A6ADB0" : "transparent"}
-                px={4}
-                py={2}
-                cursor="pointer"
-                {...getItemProps({ item: book, index })}
-              >
-                {book}
-              </List.Item>
-            ))}
-        </List.Root>
-      </Box>
+        <Input
+          {...getInputProps({
+            placeholder: searchType === "passage" ? "John 3:16" : "Contentment",
+            onFocus: openMenu,
+            // TODO: fix enter click when taken on filtered books dropdown
+            onKeyDown: (event) => {
+              if (event.key === "Enter") {
+                submitOnEnter(event);
+              }
+            },
+          })}
+        />
+      </InputGroup>
+      {searchType === "passage" && (
+        <Box
+          {...getMenuProps()}
+          position="absolute"
+          width="100%"
+          mt={1}
+          bg="white"
+          borderWidth={1}
+          borderColor="gray.200"
+          borderRadius="md"
+          boxShadow="sm"
+          zIndex={10}
+          display={isOpen && bibleBooks.length > 0 ? "block" : "none"}
+        >
+          <List.Root maxH="200px" overflowY="auto">
+            {isOpen &&
+              filteredBooks.map((book, index) => (
+                <List.Item
+                  key={`${book}-${index}`}
+                  bg={highlightedIndex === index ? "#A6ADB0" : "transparent"}
+                  px={4}
+                  py={2}
+                  cursor="pointer"
+                  {...getItemProps({ item: book, index })}
+                >
+                  {book}
+                </List.Item>
+              ))}
+          </List.Root>
+        </Box>
+      )}
     </Box>
   );
 }

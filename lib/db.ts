@@ -5,7 +5,7 @@ import { getUserByEmail } from '@/supabase/utils/user';
 
 export async function saveSearchQuery(
   query: string,
-  queryType: "passage" | "ai",
+  queryType: "passage" | "ai" | "keyword",
   queryRes?: string | null
 ) {
   const session = await auth0.getSession();

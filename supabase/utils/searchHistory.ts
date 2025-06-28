@@ -8,7 +8,7 @@ export type DbRes = {
 export async function saveSearchHistory(
   userId: number,
   query: string,
-  queryType: "passage" | "ai",
+  queryType: "passage" | "ai" | "keyword",
   queryRes?: string | null
 ): Promise<DbRes> {
   const { error } = await supabaseClient
