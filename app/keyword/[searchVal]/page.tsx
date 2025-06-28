@@ -14,10 +14,10 @@ import Link from "next/link";
 import { RiArrowRightLine, RiSearchLine } from "react-icons/ri";
 
 type ParamProps = {
-  params: {
+  params: Promise<{
     searchVal: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export default async function KeyWordPage({
