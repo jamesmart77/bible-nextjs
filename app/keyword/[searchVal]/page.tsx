@@ -1,4 +1,5 @@
 import KeywordHeading from "@/app/components/keyword/KeywordHeading";
+import ResultsPagination from "@/app/components/keyword/ResultsPagination";
 import { getKeywordResults } from "@/lib/esvApi";
 import {
   Container,
@@ -18,19 +19,20 @@ type ParamProps = {
   params: Promise<{
     searchVal: string;
   }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 };
 
-export default async function KeyWordPage({
+export default async function KeywordPage({
   params,
   searchParams,
 }: ParamProps) {
   const { searchVal } = await params;
   const searchParamaters = await searchParams;
+
   const isExact = searchParamaters?.isExact === "true";
+  const page = parseInt(searchParamaters?.page || "1");
 
   const searchQuery = isExact ? `"${searchVal}"` : searchVal;
-
   const searchHits = await getKeywordResults(searchQuery);
 
   const buildChapterUrl = (reference: string) => {
@@ -62,39 +64,54 @@ export default async function KeyWordPage({
         <Separator my={2} maxW={{ base: "100%", lg: "1024px" }} />
 
         {searchHits.total_results > 0 ? (
-          <List.Root listStyle="none" maxW={{ base: "100%", lg: "1024px" }}>
-            {searchHits.results.map((result, index) => (
-              <ListItem key={index} my={2} bg="white" p={3} borderRadius="10px">
-                <Heading
-                  as="h3"
-                  fontSize="xl"
-                  fontWeight="light"
-                  color="teal.700"
+          <>
+            <List.Root listStyle="none" maxW={{ base: "100%", lg: "1024px" }}>
+              {searchHits.results.map((result, index) => (
+                <ListItem
+                  key={index}
+                  my={2}
+                  bg="white"
+                  p={3}
+                  borderRadius="10px"
                 >
-                  {result.reference}
-                </Heading>
-                <Text fontSize="md">{result.content}</Text>
-                <ChakraLink
-                  asChild
-                  color="teal.700"
-                  fontSize="sm"
-                  mt={2}
-                  mr={4}
-                  float="right"
-                >
-                  <Link
-                    href={buildChapterUrl(result.reference)}
-                    aria-label={`Read full chapter of ${result.reference}`}
+                  <Heading
+                    as="h3"
+                    fontSize="xl"
+                    fontWeight="light"
+                    color="teal.700"
                   >
-                    Read full chapter
-                    <Icon>
-                      <RiArrowRightLine />
-                    </Icon>
-                  </Link>
-                </ChakraLink>
-              </ListItem>
-            ))}
-          </List.Root>
+                    {result.reference}
+                  </Heading>
+                  <Text fontSize="md">{result.content}</Text>
+                  <ChakraLink
+                    asChild
+                    color="teal.700"
+                    fontSize="sm"
+                    mt={2}
+                    mr={4}
+                    float="right"
+                  >
+                    <Link
+                      href={buildChapterUrl(result.reference)}
+                      aria-label={`Read full chapter of ${result.reference}`}
+                    >
+                      Read full chapter
+                      <Icon>
+                        <RiArrowRightLine />
+                      </Icon>
+                    </Link>
+                  </ChakraLink>
+                </ListItem>
+              ))}
+            </List.Root>
+            {searchHits.total_results > 50 && (
+              <ResultsPagination
+                currentPage={page}
+                totalPages={searchHits.total_pages}
+                totalResults={searchHits.total_results}
+              />
+            )}
+          </>
         ) : (
           <Text>No results found. Refine your search and try again.</Text>
         )}

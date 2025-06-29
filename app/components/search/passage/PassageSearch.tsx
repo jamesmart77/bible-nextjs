@@ -56,7 +56,7 @@ export default function PassageSearch() {
     if (searchType === "passage") {
       url = handlePassageSearch(trimmedQuery);
     } else if (searchType === "keyword") {
-      url = `/keyword/${encodeURIComponent(trimmedQuery)}`;
+      url = `/keyword/${encodeURIComponent(trimmedQuery)}?page=1`;
     }
 
     if (url) {
