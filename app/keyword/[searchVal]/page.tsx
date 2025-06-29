@@ -1,3 +1,4 @@
+import KeywordHeading from "@/app/components/keyword/KeywordHeading";
 import { getKeywordResults } from "@/lib/esvApi";
 import {
   Container,
@@ -44,7 +45,7 @@ export default async function KeyWordPage({
   return (
     <main>
       <Container py={8} bg="gray.100">
-        <Heading as="h2" fontSize="2xl" fontWeight="bold" mb={2}>
+        <Heading as="h2" fontSize="2xl" fontWeight="medium" mb={2}>
           <Flex>
             <Icon mr={1} mt={0.5}>
               <RiSearchLine />
@@ -52,13 +53,11 @@ export default async function KeyWordPage({
             Keyword seach
           </Flex>
         </Heading>
-        <Text fontSize="md" color="gray.600">
-          {searchHits.total_results}{" "}
-          {searchHits.total_results === 1 ? "result" : "results"} for{" "}
-          <b>{decodeURIComponent(searchVal)}</b>
-          {" "}
-          {isExact && 'with exact match'}
-        </Text>
+        <KeywordHeading
+          totalResults={searchHits.total_results}
+          queryTerm={searchVal}
+          isExact={isExact}
+        />
 
         <Separator my={2} maxW={{ base: "100%", lg: "1024px" }} />
 

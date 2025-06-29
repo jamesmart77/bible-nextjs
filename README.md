@@ -17,6 +17,9 @@ npm run dev
 
 Open [https://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### Chakra
+To add new Chakra snippets, execute the following script in your terminal
+`npx @chakra-ui/cli snippet add toggle-tip --outdir app/components/chakra-snippets`
 ### DB
 
 Supabase postgres database. Setup is under...

@@ -8,10 +8,8 @@ import SearchTypSettings from "./SearchTypeSettings";
 type Props = {
   inputValue: string;
   searchType: string;
-  isExactPhrase: boolean;
   setInputValue: (value: string) => void;
-  setSearchType: (value: 'passage' | 'keyword') => void;
-  setIsExactPhrase: (value: boolean) => void;
+  setSearchType: (value: "passage" | "keyword") => void;
   submitOnEnter: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
@@ -21,8 +19,6 @@ export default function AutocompleteInput(props: Props) {
     setInputValue,
     searchType,
     setSearchType,
-    isExactPhrase,
-    setIsExactPhrase,
     submitOnEnter,
   } = props;
 
@@ -64,8 +60,6 @@ export default function AutocompleteInput(props: Props) {
           <SearchTypSettings
             searchType={searchType}
             setSearchType={setSearchType}
-            isExactPhrase={isExactPhrase}
-            setIsExactPhrase={setIsExactPhrase}
           />
         }
       >

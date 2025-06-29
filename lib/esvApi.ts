@@ -94,7 +94,6 @@ type KeywordSearchResult = {
 export async function getKeywordResults(query: string, pageNumber?: number) {
   const options = getReqOptions();
     const page = pageNumber || 1;
-    console.log("query: ", query);
     const res = await fetch(`https://api.esv.org/v3/passage/search/?q=${query}&page-size=50&page=${page}`, options);
 
     if (!res.ok) {

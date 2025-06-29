@@ -12,7 +12,6 @@ export default function PassageSearch() {
   const [searchType, setSearchType] = useState<"passage" | "keyword">(
     "passage"
   );
-  const [isExactPhrase, setIsExactPhrase] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePassageSearch = (trimmedQuery: string): string | undefined => {
@@ -57,7 +56,7 @@ export default function PassageSearch() {
     if (searchType === "passage") {
       url = handlePassageSearch(trimmedQuery);
     } else if (searchType === "keyword") {
-      url = `/keyword/${encodeURIComponent(trimmedQuery)}?isExact=${isExactPhrase}`;
+      url = `/keyword/${encodeURIComponent(trimmedQuery)}`;
     }
 
     if (url) {
@@ -76,8 +75,6 @@ export default function PassageSearch() {
           submitOnEnter={handleSubmit}
           searchType={searchType}
           setSearchType={setSearchType}
-          isExactPhrase={isExactPhrase}
-          setIsExactPhrase={setIsExactPhrase}
         />
         <Button
           mt="0.5rem"
