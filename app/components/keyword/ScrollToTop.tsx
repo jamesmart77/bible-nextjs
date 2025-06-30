@@ -24,7 +24,7 @@ export default function ScrollToTop() {
       aria-label="Scroll to top"
       onClick={scrollToTop}
       position="fixed"
-      bottom={{ base: "8rem", sm: "1rem" }}
+      bottom="1rem"
       zIndex={1000}
       colorPalette="cyan"
       variant="subtle"
