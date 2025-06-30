@@ -1,5 +1,6 @@
 import KeywordHeading from "@/app/components/keyword/KeywordHeading";
 import ResultsPagination from "@/app/components/keyword/ResultsPagination";
+import ScrollToTop from "@/app/components/keyword/ScrollToTop";
 import { getKeywordResults } from "@/lib/esvApi";
 import {
   Container,
@@ -46,7 +47,7 @@ export default async function KeywordPage({
 
   return (
     <main>
-      <Container py={8} bg="gray.100">
+      <Container py={8} bg="gray.100" mb='6rem'>
         <Heading as="h2" fontSize="2xl" fontWeight="medium" mb={2}>
           <Flex>
             <Icon mr={1} mt={0.5}>
@@ -104,6 +105,7 @@ export default async function KeywordPage({
                 </ListItem>
               ))}
             </List.Root>
+            <ScrollToTop />
             {searchHits.total_results > 50 && (
               <ResultsPagination
                 currentPage={page}

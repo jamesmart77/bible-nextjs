@@ -41,7 +41,7 @@ export default function KeywordHeading({
         {totalResults} {totalResults === 1 ? "result" : "results"} for{" "}
         <b>{decodeURIComponent(queryTerm)}</b>{" "}
       </Text>
-      <HStack mt={{base: 2, sm: 0 }}>
+      <HStack mt={{ base: 2, sm: 0 }}>
         <Switch.Root
           ml={{ base: 0, sm: 4 }}
           size="md"
@@ -61,7 +61,7 @@ export default function KeywordHeading({
             Make exact match
           </Switch.Label>
         </Switch.Root>
-        <InfoTip content="Exact match only returns results for the exact phrase found in Scripture.">
+        <InfoTip content="Exact match finds only that phrase in Scripture.">
           <Button size="xs" variant="ghost">
             <HiInformationCircle />
           </Button>

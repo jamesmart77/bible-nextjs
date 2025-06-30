@@ -4,7 +4,7 @@ import Link from "next/link";
 import parse from "html-react-parser";
 import { SearchHistory as SearchHistoryType } from "@/supabase/utils/user";
 
-export default function SmartSearchHistoryItem({
+export default function SmartHistory({
   searchHistory,
 }: {
   searchHistory: SearchHistoryType[];

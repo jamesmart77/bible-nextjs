@@ -60,7 +60,8 @@ export async function getUserSearchHistory(
     .from('search_history')
     .select('id, query, queryType:querytype, queryRes:queryres, createdAt:created_at')
     .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(50);
 
   if (error) {
     console.error('Error fetching user search history:', error);

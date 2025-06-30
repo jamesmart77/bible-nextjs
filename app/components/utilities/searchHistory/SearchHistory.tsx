@@ -12,8 +12,8 @@ import {
   RiGeminiLine,
   RiBookmarkLine,
 } from "react-icons/ri";
-import PassageHistoryItem from "./PassageHistoryItem";
-import SmartSearchHistoryItem from "./SmartSearchHistoryItem";
+import ScriptureHistoryItem from "./ScriptureHistoryItem";
+import SmartHistory from "./SmartHistory";
 
 type Props = {
   open: boolean;
@@ -39,11 +39,11 @@ export default function SearchHistory({ searchHistory, open, setOpen }: Props) {
               <Drawer.Title>Search History</Drawer.Title>
             </Drawer.Header>
             <Drawer.Body>
-              <Tabs.Root fitted defaultValue="passages" variant="plain">
+              <Tabs.Root fitted defaultValue="scripture" variant="plain">
                 <Tabs.List bg="bg.muted" rounded="l3" p="1">
-                  <Tabs.Trigger value="passages">
+                  <Tabs.Trigger value="scripture">
                     <RiBookmarkLine />
-                    Passages
+                    Scripture
                   </Tabs.Trigger>
                   <Tabs.Trigger value="smartSearch">
                     <RiGeminiLine />
@@ -51,10 +51,10 @@ export default function SearchHistory({ searchHistory, open, setOpen }: Props) {
                   </Tabs.Trigger>
                   <Tabs.Indicator rounded="l2" />
                 </Tabs.List>
-                <Tabs.Content value="passages">
+                <Tabs.Content value="scripture">
                   <ListRoot listStyle="none" padding="0">
                     {searchHistory
-                      .filter((item) => item.queryType === "passage")
+                      .filter((item) => item.queryType === "passage" || item.queryType === "keyword")
                       .map((item) => (
                         <ListItem
                           key={item.id}
@@ -65,13 +65,13 @@ export default function SearchHistory({ searchHistory, open, setOpen }: Props) {
                           borderTop="1px solid"
                           borderColor="gray.200"
                         >
-                          <PassageHistoryItem item={item} />
+                          <ScriptureHistoryItem item={item} />
                         </ListItem>
                       ))}
                   </ListRoot>
                 </Tabs.Content>
                 <Tabs.Content value="smartSearch">
-                  <SmartSearchHistoryItem searchHistory={searchHistory} />
+                  <SmartHistory searchHistory={searchHistory} />
                 </Tabs.Content>
               </Tabs.Root>
             </Drawer.Body>
