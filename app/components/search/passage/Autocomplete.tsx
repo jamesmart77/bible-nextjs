@@ -67,9 +67,11 @@ export default function AutocompleteInput(props: Props) {
           {...getInputProps({
             placeholder: searchType === "passage" ? "John 3:16" : "Contentment",
             onFocus: openMenu,
-            // TODO: fix enter click when taken on filtered books dropdown
             onKeyDown: (event) => {
-              if (event.key === "Enter") {
+              if (
+                event.key === "Enter" &&
+                highlightedIndex === -1 // Only submit if no item is highlighted from downshift
+               ) {
                 submitOnEnter(event);
               }
             },

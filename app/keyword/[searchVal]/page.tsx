@@ -14,6 +14,7 @@ import {
   Link as ChakraLink,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import { Fade } from "react-awesome-reveal";
 import { RiArrowRightLine, RiSearchLine } from "react-icons/ri";
 
 type ParamProps = {
@@ -47,77 +48,79 @@ export default async function KeywordPage({
 
   return (
     <main>
-      <Container py={8} bg="gray.100" mb='6rem'>
-        <Heading as="h2" fontSize="2xl" fontWeight="medium" mb={2}>
-          <Flex>
-            <Icon mr={1} mt={0.5}>
-              <RiSearchLine />
-            </Icon>
-            Keyword seach
-          </Flex>
-        </Heading>
-        <KeywordHeading
-          totalResults={searchHits.total_results}
-          queryTerm={searchVal}
-          isExact={isExact}
-        />
+      <Fade duration={750} triggerOnce style={{ height: "100vh" }}>
+        <Container py={8} bg="gray.100" pb="6rem">
+          <Heading as="h2" fontSize="2xl" fontWeight="medium" mb={2}>
+            <Flex>
+              <Icon mr={1} mt={0.5}>
+                <RiSearchLine />
+              </Icon>
+              Keyword seach
+            </Flex>
+          </Heading>
+          <KeywordHeading
+            totalResults={searchHits.total_results}
+            queryTerm={searchVal}
+            isExact={isExact}
+          />
 
-        <Separator my={2} maxW={{ base: "100%", lg: "1024px" }} />
+          <Separator my={2} maxW={{ base: "100%", lg: "1024px" }} />
 
-        {searchHits.total_results > 0 ? (
-          <>
-            <List.Root listStyle="none" maxW={{ base: "100%", lg: "1024px" }}>
-              {searchHits.results.map((result, index) => (
-                <ListItem
-                  key={index}
-                  my={2}
-                  bg="white"
-                  p={3}
-                  borderRadius="10px"
-                >
-                  <Heading
-                    as="h3"
-                    fontSize="xl"
-                    fontWeight="light"
-                    color="teal.700"
+          {searchHits.total_results > 0 ? (
+            <>
+              <List.Root listStyle="none" maxW={{ base: "100%", lg: "1024px" }}>
+                {searchHits.results.map((result, index) => (
+                  <ListItem
+                    key={index}
+                    my={2}
+                    bg="white"
+                    p={3}
+                    borderRadius="10px"
                   >
-                    {result.reference}
-                  </Heading>
-                  <Text fontSize="md">{result.content}</Text>
-                  <ChakraLink
-                    asChild
-                    color="teal.700"
-                    fontSize="sm"
-                    mt={2}
-                    mr={4}
-                    float="right"
-                  >
-                    <Link
-                      href={buildChapterUrl(result.reference)}
-                      aria-label={`Read full chapter of ${result.reference}`}
+                    <Heading
+                      as="h3"
+                      fontSize="xl"
+                      fontWeight="light"
+                      color="teal.700"
                     >
-                      Read full chapter
-                      <Icon>
-                        <RiArrowRightLine />
-                      </Icon>
-                    </Link>
-                  </ChakraLink>
-                </ListItem>
-              ))}
-            </List.Root>
-            <ScrollToTop />
-            {searchHits.total_results > 50 && (
-              <ResultsPagination
-                currentPage={page}
-                totalPages={searchHits.total_pages}
-                totalResults={searchHits.total_results}
-              />
-            )}
-          </>
-        ) : (
-          <Text>No results found. Refine your search and try again.</Text>
-        )}
-      </Container>
+                      {result.reference}
+                    </Heading>
+                    <Text fontSize="md">{result.content}</Text>
+                    <ChakraLink
+                      asChild
+                      color="teal.700"
+                      fontSize="sm"
+                      mt={2}
+                      mr={4}
+                      float="right"
+                    >
+                      <Link
+                        href={buildChapterUrl(result.reference)}
+                        aria-label={`Read full chapter of ${result.reference}`}
+                      >
+                        Read full chapter
+                        <Icon>
+                          <RiArrowRightLine />
+                        </Icon>
+                      </Link>
+                    </ChakraLink>
+                  </ListItem>
+                ))}
+              </List.Root>
+              <ScrollToTop />
+              {searchHits.total_results > 50 && (
+                <ResultsPagination
+                  currentPage={page}
+                  totalPages={searchHits.total_pages}
+                  totalResults={searchHits.total_results}
+                />
+              )}
+            </>
+          ) : (
+            <Text>No results found. Refine your search and try again.</Text>
+          )}
+        </Container>
+      </Fade>
     </main>
   );
 }

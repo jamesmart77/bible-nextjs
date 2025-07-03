@@ -23,6 +23,7 @@ export default function SearchTypeSettings(props: Props) {
   return (
     <NativeSelect.Root size="xs" variant="outline" width="auto" me="-1">
       <NativeSelect.Field
+        aria-label="Select scripture search type"
         fontSize="sm"
         value={searchType}
         onChange={handleOnChange}

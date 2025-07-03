@@ -5,6 +5,7 @@ import ScriptureText from "@/app/components/passages/ScriptureText";
 import { getBiblePassage, navigateToChapter } from "@/lib/esvApi";
 import { getUserByEmail, getUserSearchHistory } from "@/supabase/utils/user";
 import { SessionData } from "@auth0/nextjs-auth0/types";
+import { Fade } from "react-awesome-reveal";
 
 type ParamProps = {
   params: Promise<{
@@ -51,7 +52,7 @@ async function fetchSearchHistory(session: SessionData | null) {
   if (session?.user?.email) {
     user = await getUserByEmail(session.user.email);
   }
-  
+
   if (user?.id) {
     searchHistory = await getUserSearchHistory(user.id);
   }
@@ -61,11 +62,11 @@ async function fetchSearchHistory(session: SessionData | null) {
 
 export default async function Passage({ params }: ParamProps) {
   const { book, passage } = await params;
-  
+
   if (!passage) {
     return redirect(`/passages/${book}/1`);
   }
-  
+
   const session = await auth0.getSession();
   const searchHistory = await fetchSearchHistory(session);
 
@@ -80,20 +81,22 @@ export default async function Passage({ params }: ParamProps) {
 
   return (
     <main>
-      <ScriptureText
-        passageText={passageText}
-        book={book}
-        chapter={chapter}
-        shouldShowFullChapterLink={!!verses}
-      />
-      <ActionsBar
-        navigateToChapter={navigateToChapter}
-        previousChapter={previousChapter}
-        nextChapter={nextChapter}
-        userSession={session}
-        passageUrl={passageUrl}
-        searchHistory={searchHistory}
-      />
+      <Fade duration={750} triggerOnce style={{ height: "100vh" }}>
+        <ScriptureText
+          passageText={passageText}
+          book={book}
+          chapter={chapter}
+          shouldShowFullChapterLink={!!verses}
+        />
+        <ActionsBar
+          navigateToChapter={navigateToChapter}
+          previousChapter={previousChapter}
+          nextChapter={nextChapter}
+          userSession={session}
+          passageUrl={passageUrl}
+          searchHistory={searchHistory}
+        />
+      </Fade>
     </main>
   );
 }

@@ -43,7 +43,10 @@ export default function PassageSearch() {
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
+    
     event.preventDefault();
+    if (!inputValue.trim()) return;
+    
     setIsLoading(true);
 
     // Uppercase the first letter present
