@@ -27,3 +27,17 @@ export async function saveSearchHistory(
 
   return { status: 200 };
 }
+
+export async function warmUpDb(): Promise<number | null> {
+  const { data, error } = await supabaseClient
+    .from("search_history")
+    .select("id")
+    .limit(1);
+
+  if (error) {
+    console.error("Error during DB warmup: ", error);
+    return null;
+  }
+
+  return data[0]?.id | 0;
+}
