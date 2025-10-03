@@ -10,6 +10,6 @@ export async function GET(request: Request) {
   }
 
   const sampleRecordId = await warmUpDb();
-  console.log("Cron job executed. Sample record ID: ", sampleRecordId);
+  console.log("Cron job executed successfully. Sample record ID: ", sampleRecordId);
   return NextResponse.json({ ok: true });
 }
