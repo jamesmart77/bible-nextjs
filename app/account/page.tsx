@@ -1,6 +1,7 @@
 import { auth0 } from "@/lib/auth0";
-import { Box, Button, Container, Heading, Icon, Text } from "@chakra-ui/react";
+import { Box, Button, Container, Heading, Icon, Link, Text } from "@chakra-ui/react";
 import Image from "next/image";
+import NextLink from "next/link";
 import { Fade } from "react-awesome-reveal";
 import { FaSignOutAlt } from "react-icons/fa";
 
@@ -39,6 +40,9 @@ export default async function ProfileServer() {
             {session.user.name}
           </Heading>
           <Text>{session.user.email}</Text>
+          <Link asChild my={4}>
+            <NextLink href="/privacy">Privacy policy</NextLink>
+          </Link>
           <Button asChild variant="outline" mt="2rem">
             <a href="/auth/logout">
               <Icon size="md">
