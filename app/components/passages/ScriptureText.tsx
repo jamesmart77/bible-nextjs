@@ -79,7 +79,6 @@ export default function ScriptureText({
         .share({
           title: `JustScripture: ${book} ${chapter}`,
           text: verseText,
-          url: `https://www.justscripture.app/passages/${book}/${chapter}`,
         })
         .catch(() => {
           toastSuccess(verseText);
@@ -252,7 +251,6 @@ export default function ScriptureText({
 
   return (
     <Container my="2rem">
-      {JSON.stringify(selectedVerses)}
       <Text as="section">{passageHtml}</Text>
       {shouldShowFullChapterLink && (
         <ChakraLink asChild fontSize="sm" mt="1rem" variant="underline">
