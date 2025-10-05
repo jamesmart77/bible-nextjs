@@ -31,7 +31,7 @@ export default function Home() {
           </Flex>
         </Fade>
       </main>
-      <Box as="footer" pos="fixed" bottom={0} width="100%">
+      <Box as="footer" pos="fixed" bottom={0} width="100%" mt={8}>
         <Flex justify="center" py={2}>
           <Text fontSize="xs" pr={2} borderRightColor="gray.100" borderRight="1px solid">
             Created by{" "}
