@@ -25,7 +25,7 @@ export default async function Header() {
           }}
         >
           <Heading as="h1" size={{ base: "2xl", sm: "3xl" }} color="teal.700">
-            Just Scripture
+            JustScripture
           </Heading>
         </NextLink>
         <div>
