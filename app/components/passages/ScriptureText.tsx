@@ -86,6 +86,8 @@ export default function ScriptureText({
     } else {
       toastSuccess(verseText);
     }
+
+    setSelectedVerses([]); 
   };
 
   // Custom parser to group verses in <p> by <b class="chapter-num"> and <b class="verse-num">
