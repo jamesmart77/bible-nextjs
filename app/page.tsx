@@ -37,7 +37,7 @@ export default function Home() {
             Created by{" "}
             <Link asChild color="teal.800">
               <NextLink
-                href="https://jameesmart77.github.io/portfolio-v2"
+                href="https://jamesmart77.github.io/portfolio-v2"
                 target="_blank"
                 rel="noopener noreferrer"
               >
