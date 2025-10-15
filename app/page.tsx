@@ -7,7 +7,7 @@ import SearchOptions from "./components/search/SearchOptions";
 export default function Home() {
   return (
     <Box>
-      <main>
+      <Box as="main" minHeight={{ base: "95vh", md: "inherit" }} pt="4rem">
         <Fade duration={750} triggerOnce>
           <Flex
             flexDirection="column"
@@ -30,10 +30,20 @@ export default function Home() {
             <SearchOptions />
           </Flex>
         </Fade>
-      </main>
-      <Box as="footer" pos="fixed" bottom={0} width="100%" mt={8}>
+      </Box>
+      <Box
+        as="footer"
+        pos={{ base: "relative", md: "fixed" }}
+        bottom={0}
+        width="100%"
+      >
         <Flex justify="center" py={2}>
-          <Text fontSize="xs" pr={2} borderRightColor="gray.100" borderRight="1px solid">
+          <Text
+            fontSize="xs"
+            pr={2}
+            borderRightColor="gray.100"
+            borderRight="1px solid"
+          >
             Created by{" "}
             <Link asChild color="teal.800">
               <NextLink

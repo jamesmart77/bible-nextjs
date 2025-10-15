@@ -13,24 +13,41 @@ function getReqOptions() {
   };
 }
 
+function adjustQueryForSingleChapterBooks(
+  query: string,
+  containsVerses: boolean,
+  book: string
+) {
+  const singleChapterBooks = ["obadiah", "philemon", "2john", "3john", "jude"];
+
+  if (singleChapterBooks.includes(book.toLowerCase()) && !containsVerses) {
+    return book;
+  }
+  return query;
+}
+
 export async function getBiblePassage(book: string, passage: string[]) {
   const [chapter, verses] = passage;
   const [startVerse, endVerse] = verses?.split("-") || [];
 
-  const query = [
+  let query = [
     `${book}+`,
     chapter,
     startVerse ? `:${startVerse}` : "",
     endVerse ? `-${endVerse}` : "",
   ].join("");
 
-  const url = `https://api.esv.org/v3/passage/html/?q=${query}&include-crossrefs=true`;
+  query = adjustQueryForSingleChapterBooks(query, !!verses, book);
+  const url = `https://api.esv.org/v3/passage/html/?q=${query}&include-crossrefs=true&include-short-copyright=false&include-chapter-numbers=false`;
+
   const options = getReqOptions();
 
   try {
     const res = await fetch(url, options);
     if (!res.ok) {
-      throw new Error(`Error fetching bible passage. Status: ${res.statusText}. Code: ${res.status}`);
+      throw new Error(
+        `Error fetching bible passage. Status: ${res.statusText}. Code: ${res.status}`
+      );
     }
     const data = await res.json();
     const [prevStart, prevEnd] = data.passage_meta[0].prev_chapter || [];
@@ -67,9 +84,7 @@ async function getChapterCanonical(ref: string) {
   }
 }
 
-export async function navigateToChapter(
-  chapter: string | null
-) {
+export async function navigateToChapter(chapter: string | null) {
   if (!chapter) return;
 
   const canonical = await getChapterCanonical(chapter);
@@ -93,16 +108,22 @@ type KeywordSearchResult = {
 
 export async function getKeywordResults(query: string, pageNumber?: number) {
   const options = getReqOptions();
-    const page = pageNumber || 1;
-    const res = await fetch(`https://api.esv.org/v3/passage/search/?q=${query}&page-size=50&page=${page}`, options);
+  const page = pageNumber || 1;
+  const res = await fetch(
+    `https://api.esv.org/v3/passage/search/?q=${query}&page-size=50&page=${page}`,
+    options
+  );
 
-    if (!res.ok) {
-      throw new Error(`Error fetching keyword search. Status: ${res.statusText}. Code: ${res.status}`);
-    }
+  if (!res.ok) {
+    throw new Error(
+      `Error fetching keyword search. Status: ${res.statusText}. Code: ${res.status}`
+    );
+  }
 
-    const data: KeywordSearchResult = await res.json();
-    
-    if (data.results.length === 0 ) throw new Error(`Invalid search. Query: ${query}`);
-    
-    return data;
+  const data: KeywordSearchResult = await res.json();
+
+  if (data.results.length === 0)
+    throw new Error(`Invalid search. Query: ${query}`);
+
+  return data;
 }

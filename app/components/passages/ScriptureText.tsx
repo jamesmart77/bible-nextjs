@@ -87,7 +87,7 @@ export default function ScriptureText({
       toastSuccess(verseText);
     }
 
-    setSelectedVerses([]); 
+    setSelectedVerses([]);
   };
 
   // Custom parser to group verses in <p> by <b class="chapter-num"> and <b class="verse-num">
@@ -160,7 +160,6 @@ export default function ScriptureText({
               bg={isVerseSelected(verse.verseNum) ? "yellow.300" : undefined}
               cursor="pointer"
               borderRadius="md"
-              px={1}
               mx={0.5}
               onClick={() => handleVerseClick(verse.verseNum, verseText)}
               _hover={{
@@ -214,11 +213,15 @@ export default function ScriptureText({
             key={index}
             as="h3"
             fontSize="md"
-            fontWeight="medium"
+            fontWeight="bold"
             mt="1rem"
             pb="0.25rem"
           >
-            {(domNode.children[0] as any).data}
+            {domNode.children.map((child, index) => (
+              <Fragment key={index}>
+                {parse(require("dom-serializer").default(child), options)}
+              </Fragment>
+            ))}
           </Heading>
         );
       }

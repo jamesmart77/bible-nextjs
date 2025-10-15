@@ -1,4 +1,4 @@
-- 6 month login timeframe
+- 3 month login timeframe
 - pop up for logging in
 - search on scripture page
 - search on keyword page
