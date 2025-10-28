@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import Header from "./components/Header";
 import NextTopLoader from "nextjs-toploader";
-import { Provider as ChakraProvider } from "@/app/components/snippets/Provider";
+import { Provider as ChakraProvider } from "@/app/components/chakra-snippets/Provider";
 import "./globals.css";
 
 export const metadata: Metadata = {

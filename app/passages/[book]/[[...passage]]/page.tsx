@@ -82,20 +82,22 @@ export default async function Passage({ params }: ParamProps) {
   return (
     <main>
       <Fade duration={750} triggerOnce style={{ height: "100vh" }}>
-        <ScriptureText
-          passageText={passageText}
-          book={book}
-          chapter={chapter}
-          shouldShowFullChapterLink={!!verses}
-        />
-        <ActionsBar
-          navigateToChapter={navigateToChapter}
-          previousChapter={previousChapter}
-          nextChapter={nextChapter}
-          userSession={session}
-          passageUrl={passageUrl}
-          searchHistory={searchHistory}
-        />
+        <div>
+          <ScriptureText
+            passageText={passageText}
+            book={book}
+            chapter={chapter}
+            shouldShowFullChapterLink={!!verses}
+          />
+          <ActionsBar
+            navigateToChapter={navigateToChapter}
+            previousChapter={previousChapter}
+            nextChapter={nextChapter}
+            userSession={session}
+            passageUrl={passageUrl}
+            searchHistory={searchHistory}
+          />
+        </div>
       </Fade>
     </main>
   );
