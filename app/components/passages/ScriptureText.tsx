@@ -10,11 +10,12 @@ import {
   // IconButton,
 } from "@chakra-ui/react";
 // import { toaster, Toaster } from "@/app/components/chakra-snippets/toaster";
-import parse, {Element } from "html-react-parser";
+import parse, { Element } from "html-react-parser";
 import Link from "next/link";
 // import { RiShareFill } from "react-icons/ri";
 // import { Bounce } from "react-awesome-reveal";
 import { updateHtml } from "@/app/utils/htmlParser";
+import Copyright from "./Copyright";
 
 type Props = {
   passageText: string;
@@ -258,8 +259,14 @@ export default function ScriptureText({
   });
 
   return (
-    <Container my="2rem">
-      <Text as="section" pb={6}>{passageHtml}</Text>
+    <Container
+      my="2rem"
+      maxW={{ base: "100%", md: "900px" }}
+      marginInline={{ base: "auto" }}
+    >
+      <Text as="section" pb={6}>
+        {passageHtml}
+      </Text>
       {shouldShowFullChapterLink && (
         <ChakraLink asChild fontSize="sm" mt="1rem" variant="underline">
           <Link href={`/passages/${book}/${chapter}`}>Read full chapter</Link>
@@ -280,6 +287,7 @@ export default function ScriptureText({
           </IconButton>
         </Bounce>
       )} */}
+      <Copyright />
     </Container>
   );
 }
