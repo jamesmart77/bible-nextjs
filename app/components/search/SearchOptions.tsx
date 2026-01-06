@@ -6,7 +6,7 @@ import AiSearch from "./AiSearch";
 import PassageSearch from "./passage/PassageSearch";
 import { RiBookmarkLine, RiGeminiLine } from "react-icons/ri";
 
-export default function SearchOptions() {
+export default function SearchOptions({ isSignedIn }: { isSignedIn: boolean }) {
   const [searchType, setSearchType] = useState<"passage" | "ai">("passage");
 
   const isPassageSearch = searchType === "passage";
@@ -41,7 +41,7 @@ export default function SearchOptions() {
           <RiGeminiLine /> Smart search 
         </Button>
       </Flex>
-      {isPassageSearch ? <PassageSearch /> : <AiSearch />}
+      {isPassageSearch ? <PassageSearch /> : <AiSearch isSignedIn={isSignedIn} />}
     </Box>
   );
 }

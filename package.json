@@ -21,7 +21,7 @@
     "html-react-parser": "^5.2.3",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
-    "next": "^15.5.7",
+    "next": "^16.1.1",
     "next-themes": "^0.4.6",
     "nextjs-toploader": "^3.8.16",
     "react": "^19.0.0",
@@ -31,9 +31,9 @@
     "supabase": "^2.24.3"
   },
   "devDependencies": {
-    "@chakra-ui/react": "^3.27.0",
+    "@chakra-ui/react": "^3.30.0",
     "@emotion/react": "^11.14.0",
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "typescript": "^5"
