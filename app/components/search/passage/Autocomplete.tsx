@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useCombobox } from "downshift";
 import { Box, Input, InputGroup, List } from "@chakra-ui/react";
 import { useOutsideClick } from "@chakra-ui/react-use-outside-click";
+import useDeviceBreakpoint from "@/app/hooks/useDeviceBreakpoint";
 import { bibleBooks } from "./bibleBooks";
 import SearchTypSettings from "./SearchTypeSettings";
 
@@ -21,6 +22,8 @@ export default function AutocompleteInput(props: Props) {
     setSearchType,
     submitOnEnter,
   } = props;
+
+  const { isDesktop } = useDeviceBreakpoint();
 
   const ref = useRef<HTMLElement>(null) as React.RefObject<HTMLElement>;
 
@@ -82,6 +85,7 @@ export default function AutocompleteInput(props: Props) {
         <Box
           {...getMenuProps()}
           position="absolute"
+          bottom={isDesktop ? "inherit" : "2.8rem"} // push dropdown above keyboard on mobile
           width="100%"
           mt={1}
           bg="white"

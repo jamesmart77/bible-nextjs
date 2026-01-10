@@ -1,5 +1,6 @@
 "use server";
 
+import { handlePassageSearch } from "@/app/utils/passageParser";
 import { redirect } from "next/navigation";
 
 function getReqOptions() {
@@ -67,6 +68,7 @@ export async function getBiblePassage(book: string, passage: string[]) {
 
 async function getChapterCanonical(ref: string) {
   const url = `https://api.esv.org/v3/passage/html/?q=${ref}`;
+  console.log({ url });
   const options = getReqOptions();
 
   try {
@@ -89,12 +91,14 @@ export async function navigateToChapter(chapter: string | null) {
   if (!chapter) return;
 
   const canonical = await getChapterCanonical(chapter);
-  const [canonicalBook, canonicalPassage] = canonical.split(" ");
-  const [canonicalChapter, canonicalVerses] = canonicalPassage.split(":");
-  const redirectUrl = `/passages/${canonicalBook}/${canonicalChapter}${
-    canonicalVerses ? `/${canonicalVerses}` : ""
-  }`;
-  redirect(redirectUrl);
+  const redirectUrl = handlePassageSearch(canonical);
+  redirect(redirectUrl!);
+  // const [canonicalBook, canonicalPassage] = canonical.split(" ");
+  // const [canonicalChapter, canonicalVerses] = canonicalPassage.split(":");
+  // const redirectUrl = `/passages/${canonicalBook}/${canonicalChapter}${
+  //   canonicalVerses ? `/${canonicalVerses}` : ""
+  // }`;
+  // redirect(redirectUrl);
 }
 
 type KeywordSearchResult = {
