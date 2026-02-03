@@ -137,7 +137,7 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
       </form>
       {geminiRes && !hasGeminiError && (
         <Fade triggerOnce direction="up">
-          <Box mb={8}>
+          <Box mb={8} maxH="350px" overflowY="scroll">
             <Separator my={4} />
             {geminiRes && parseRes}
           </Box>
