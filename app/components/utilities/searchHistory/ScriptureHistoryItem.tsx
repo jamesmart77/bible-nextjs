@@ -39,13 +39,15 @@ export default function ScriptureHistoryItem({
 
   return (
     <>
-      <Flex alignItems="center">
-        <Icon mr="2">
-          {item.queryType === "passage" ? <RiBookmarkLine /> : <RiKeyLine />}
-        </Icon>
-        <Heading fontSize="md" fontWeight="500">
-          {item.query}
-        </Heading>
+      <Flex alignItems="center" asChild>
+        <Link href={url || "#"}>
+          <Icon mr="2">
+            {item.queryType === "passage" ? <RiBookmarkLine /> : <RiKeyLine />}
+          </Icon>
+          <Heading fontSize="md" fontWeight="500" margin={0}>
+            {item.query}
+          </Heading>
+        </Link>
       </Flex>
       <Icon asChild color="teal.700">
         <Link href={url || "#"}>

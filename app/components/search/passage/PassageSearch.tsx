@@ -11,15 +11,14 @@ export default function PassageSearch() {
   const router = useRouter();
   const [inputValue, setInputValue] = useState("");
   const [searchType, setSearchType] = useState<"passage" | "keyword">(
-    "passage"
+    "passage",
   );
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
-    
     event.preventDefault();
     if (!inputValue.trim()) return;
-    
+
     setIsLoading(true);
 
     // Uppercase the first letter present
@@ -44,7 +43,11 @@ export default function PassageSearch() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        aria-busy={isLoading}
+        aria-disabled={isLoading}
+      >
         <AutocompleteInput
           inputValue={inputValue}
           setInputValue={setInputValue}

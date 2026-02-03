@@ -6,12 +6,14 @@ import {
   Alert,
   Link as ChakraLink,
   Icon,
+  Box,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import parse from "html-react-parser";
 import askGemini from "@/lib/gemini";
 import { saveSearchQuery } from "@/lib/db";
 import { RiAccountCircle2Line } from "react-icons/ri";
+import { Fade } from "react-awesome-reveal";
 
 export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -134,10 +136,12 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
         </Button>
       </form>
       {geminiRes && !hasGeminiError && (
-        <>
-          <Separator my={4} />
-          {geminiRes && parseRes}
-        </>
+        <Fade triggerOnce direction="up">
+          <Box mb={8}>
+            <Separator my={4} />
+            {geminiRes && parseRes}
+          </Box>
+        </Fade>
       )}
     </div>
   );

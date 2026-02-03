@@ -13,7 +13,7 @@ export default function SearchOptions({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <Box
       p="2rem"
-      minWidth={{ base: "90%", md: "70%", lg: "60%" }}
+      width={{ base: "100%", md: "70%", lg: "60%" }}
     >
       <Flex justifyContent="space-between" mb="2rem" aria-label="select search type">
         <Button
