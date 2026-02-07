@@ -19,6 +19,7 @@ import { SessionData } from "@auth0/nextjs-auth0/types";
 import { SearchHistory as SearchHistoryType } from "@/supabase/utils/user";
 import SearchHistory from "./searchHistory/SearchHistory";
 import Link from "next/link";
+import PopupSearch from "../search/PopupSearch";
 
 type Props = {
   navigateToChapter: (chapter: string | null) => Promise<void>;
@@ -39,6 +40,7 @@ export default function ActionsBar(props: Props) {
     searchHistory,
   } = props;
 
+  const [showSearchDialog, setShowSearchDialog] = useState(false);
   const [isPrevLoading, setIsPrevLoading] = useState(false);
   const [isNextLoading, setIsNextLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
@@ -67,6 +69,11 @@ export default function ActionsBar(props: Props) {
 
   return (
     <>
+      <PopupSearch
+        open={showSearchDialog}
+        closePopup={setShowSearchDialog}
+        isUserSignedIn={!!userSession}
+      />
       <SearchHistory
         open={isHistoryOpen}
         setOpen={setIsHistoryOpen}
@@ -155,15 +162,13 @@ export default function ActionsBar(props: Props) {
               </IconButton>
               <ActionBar.Separator />
               <IconButton
-                asChild
                 variant="outline"
                 aria-label="Search scripture"
                 title="Search scripture"
                 rounded="full"
+                onClick={() => setShowSearchDialog(true)}
               >
-                <Link href="/">
-                  <FaMagnifyingGlass />
-                </Link>
+                <FaMagnifyingGlass />
               </IconButton>
               <ActionBar.Separator />
               <IconButton

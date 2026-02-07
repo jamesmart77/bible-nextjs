@@ -89,7 +89,7 @@ export default async function Passage({ params }: ParamProps) {
             chapter={chapter}
             shouldShowFullChapterLink={!!verses}
           />
-          <ActionsBar
+          <ActionsBar 
             navigateToChapter={navigateToChapter}
             previousChapter={previousChapter}
             nextChapter={nextChapter}

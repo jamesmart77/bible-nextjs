@@ -2,12 +2,12 @@ import { Box, Flex, Link, Text } from "@chakra-ui/react";
 import Image from "next/image";
 import NextLink from "next/link";
 import { Fade } from "react-awesome-reveal";
-import SearchOptions from "./components/search/SearchOptions";
+import SearchOptions from "./components/search";
 import { auth0 } from "@/lib/auth0";
 
 export default async function Home() {
   const session = await auth0.getSession();
-  
+
   return (
     <Box>
       <Box as="main" minHeight={{ base: "95vh", md: "inherit" }} pt="4rem">
@@ -30,7 +30,9 @@ export default async function Home() {
                 }}
               />
             </Box>
-            <SearchOptions isSignedIn={!!session} />
+            <Box p="2rem" width={{ base: "100%", md: "70%", lg: "60%" }}>
+              <SearchOptions isSignedIn={!!session} />
+            </Box>
           </Flex>
         </Fade>
       </Box>

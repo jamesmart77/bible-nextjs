@@ -11,11 +11,12 @@ export default function SearchOptions({ isSignedIn }: { isSignedIn: boolean }) {
 
   const isPassageSearch = searchType === "passage";
   return (
-    <Box
-      p="2rem"
-      width={{ base: "100%", md: "70%", lg: "60%" }}
-    >
-      <Flex justifyContent="space-between" mb="2rem" aria-label="select search type">
+    <>
+      <Flex
+        justifyContent="space-between"
+        mb="2rem"
+        aria-label="select search type"
+      >
         <Button
           color="gray.800"
           width={isPassageSearch ? "50%" : "48%"}
@@ -23,7 +24,7 @@ export default function SearchOptions({ isSignedIn }: { isSignedIn: boolean }) {
           backgroundColor={isPassageSearch ? "gray.300" : "inherit"}
           onClick={() => setSearchType("passage")}
           _hover={{
-            backgroundColor: !isPassageSearch ? "gray.100" : "gray.300"
+            backgroundColor: !isPassageSearch ? "gray.100" : "gray.300",
           }}
         >
           <RiBookmarkLine /> Scripture search
@@ -35,13 +36,17 @@ export default function SearchOptions({ isSignedIn }: { isSignedIn: boolean }) {
           backgroundColor={!isPassageSearch ? "gray.300" : "inherit"}
           onClick={() => setSearchType("ai")}
           _hover={{
-            backgroundColor: isPassageSearch ? "gray.100" : "gray.300"
+            backgroundColor: isPassageSearch ? "gray.100" : "gray.300",
           }}
         >
-          <RiGeminiLine /> Smart search 
+          <RiGeminiLine /> Smart search
         </Button>
       </Flex>
-      {isPassageSearch ? <PassageSearch /> : <AiSearch isSignedIn={isSignedIn} />}
-    </Box>
+      {isPassageSearch ? (
+        <PassageSearch />
+      ) : (
+        <AiSearch isSignedIn={isSignedIn} />
+      )}
+    </>
   );
 }
