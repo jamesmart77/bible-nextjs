@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, Button } from "@chakra-ui/react";
+import { Flex, Button } from "@chakra-ui/react";
 import { useState } from "react";
 import AiSearch from "./AiSearch";
 import PassageSearch from "./passage/PassageSearch";
