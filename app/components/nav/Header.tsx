@@ -2,7 +2,8 @@ import { Button, Flex, Heading, IconButton } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { RiAccountCircleLine } from "react-icons/ri";
 import { Link as ChakraLink } from "@chakra-ui/react";
-import { auth0 } from "../../lib/auth0";
+import { auth0 } from "../../../lib/auth0";
+import ColorThemeToggle from "./ColorThemeToggle";
 
 export default async function Header() {
   const session = await auth0.getSession();
@@ -29,6 +30,7 @@ export default async function Header() {
           </Heading>
         </NextLink>
         <div>
+          <ColorThemeToggle />
           {!session ? (
             <Button asChild variant="ghost">
               <a href="/auth/login">Log in</a>

@@ -5,8 +5,8 @@ export default createSystem(defaultConfig, {
   globalCss: {
     body: {
       fontSize: "1rem",
-      color: "black",
-      backgroundColor: "white",
+      // color: "black",
+      // backgroundColor: "white",
     },
     h1: {
       ...headingRecipe.base,
