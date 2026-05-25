@@ -1,11 +1,12 @@
-import { Button, Flex, Heading, IconButton } from "@chakra-ui/react";
+import { Flex, Heading, IconButton } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { RiAccountCircleLine } from "react-icons/ri";
 import { Link as ChakraLink } from "@chakra-ui/react";
-import { auth0 } from "../../lib/auth0";
+import { getServerSession } from "@/lib/session";
+import SignInModal from "@/app/components/SignInModal";
 
 export default async function Header() {
-  const session = await auth0.getSession();
+  const session = await getServerSession();
 
   return (
     <header>
@@ -30,9 +31,7 @@ export default async function Header() {
         </NextLink>
         <div>
           {!session ? (
-            <Button asChild variant="ghost">
-              <a href="/auth/login">Log in</a>
-            </Button>
+            <SignInModal />
           ) : (
             <ChakraLink asChild title="Account">
               <NextLink href="/account">

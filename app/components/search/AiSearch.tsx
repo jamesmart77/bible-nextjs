@@ -1,18 +1,9 @@
 import { useState, useMemo } from "react";
-import {
-  Input,
-  Button,
-  Separator,
-  Alert,
-  Link as ChakraLink,
-  Icon,
-  Box,
-} from "@chakra-ui/react";
+import { Input, Button, Separator, Alert, Icon, Box } from "@chakra-ui/react";
 import NextLink from "next/link";
 import parse from "html-react-parser";
 import askGemini from "@/lib/gemini";
 import { saveSearchQuery } from "@/lib/db";
-import { RiAccountCircle2Line } from "react-icons/ri";
 import { Fade } from "react-awesome-reveal";
 
 export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
@@ -22,12 +13,12 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
   const [geminiRes, setGeminiRes] = useState<string | undefined>("");
 
   async function queryAI(query: string) {
-    // if (!isSignedIn) {
-    //   return {
-    //     hasError: true,
-    //     res: "You must be signed in to use Smart Search.",
-    //   };
-    // }
+    if (!isSignedIn) {
+      return {
+        hasError: true,
+        res: "You must be signed in to use Smart Search.",
+      };
+    }
 
     try {
       const res = await askGemini(query);
@@ -54,7 +45,7 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
     if (hasError) {
       setHasGeminiError(true);
     } else {
-      // await saveSearchQuery(query, "ai", res);
+      await saveSearchQuery(query, "ai", res);
     }
 
     setGeminiRes(res);
@@ -82,23 +73,17 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
     });
   }, [geminiRes]);
 
-  // if (!isSignedIn)
-  //   return (
-  //     <Alert.Root status="info" variant="subtle" mt={4}>
-  //       <Alert.Indicator />
-  //       <Alert.Content>
-  //         <Alert.Title>Log in to use Smart Search</Alert.Title>
-  //       </Alert.Content>
-  //       <ChakraLink asChild alignSelf="center" fontWeight="medium">
-  //         <NextLink href="/auth/login">
-  //           <Icon ml="0.25rem">
-  //             <RiAccountCircle2Line />
-  //           </Icon>
-  //           Log In
-  //         </NextLink>
-  //       </ChakraLink>
-  //     </Alert.Root>
-  //   );
+  if (!isSignedIn)
+    return (
+      <>
+        <Alert.Root status="info" variant="subtle" mt={4}>
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Title>Log in above to use Smart Search</Alert.Title>
+          </Alert.Content>
+        </Alert.Root>
+      </>
+    );
 
   return (
     <div>

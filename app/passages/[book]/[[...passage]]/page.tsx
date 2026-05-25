@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { auth0 } from "@/lib/auth0";
+import { getServerSession } from '@/lib/session';
 import ActionsBar from "@/app/components/utilities/ActionsBar";
 import ScriptureText from "@/app/components/passages/ScriptureText";
 import { getBiblePassage, navigateToChapter } from "@/lib/esvApi";
 import { getUserByEmail, getUserSearchHistory } from "@/supabase/utils/user";
-import { SessionData } from "@auth0/nextjs-auth0/types";
 import { Fade } from "react-awesome-reveal";
+import { SessionData } from "@/lib/constants";
 
 type ParamProps = {
   params: Promise<{
@@ -49,8 +49,8 @@ export async function generateMetadata({ params }: ParamProps) {
 async function fetchSearchHistory(session: SessionData | null) {
   let user, searchHistory;
 
-  if (session?.user?.email) {
-    user = await getUserByEmail(session.user.email);
+  if (session?.email) {
+    user = await getUserByEmail(session.email);
   }
 
   if (user?.id) {
@@ -67,7 +67,7 @@ export default async function Passage({ params }: ParamProps) {
     return redirect(`/passages/${book}/1`);
   }
 
-  const session = await auth0.getSession();
+  const session = await getServerSession();
   const searchHistory = await fetchSearchHistory(session);
 
   const [chapter, verses] = passage;

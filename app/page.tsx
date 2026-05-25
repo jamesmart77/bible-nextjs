@@ -3,10 +3,10 @@ import Image from "next/image";
 import NextLink from "next/link";
 import { Fade } from "react-awesome-reveal";
 import SearchOptions from "./components/search";
-import { auth0 } from "@/lib/auth0";
+import { getServerSession } from "@/lib/session";
 
 export default async function Home() {
-  const session = await auth0.getSession();
+  const session = await getServerSession();
 
   return (
     <Box>

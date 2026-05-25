@@ -1,6 +1,6 @@
 'use server';
 import {saveSearchHistory} from '@/supabase/utils/searchHistory';
-import { auth0 } from './auth0';
+import { getServerSession } from './session';
 import { getUserByEmail } from '@/supabase/utils/user';
 
 export async function saveSearchQuery(
@@ -8,14 +8,14 @@ export async function saveSearchQuery(
   queryType: "passage" | "ai" | "keyword",
   queryRes?: string | null
 ) {
-  const session = await auth0.getSession();
+  const session = await getServerSession();
 
-  if (!session?.user?.email) {
-    console.debug("Skip search history save: user not logged in");
+  if (!session?.email) {
+    console.debug('Skip search history save: user not logged in');
     return;
   }
 
-  const user = await getUserByEmail(session.user.email);
+  const user = await getUserByEmail(session.email as string);
   if (!user) return;
 
   return saveSearchHistory(user.id, query, queryType, queryRes);

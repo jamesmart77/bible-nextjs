@@ -15,11 +15,11 @@ import {
   FaMagnifyingGlass,
   FaRegCirclePlay,
 } from "react-icons/fa6";
-import { SessionData } from "@auth0/nextjs-auth0/types";
 import { SearchHistory as SearchHistoryType } from "@/supabase/utils/user";
 import SearchHistory from "./searchHistory/SearchHistory";
 import Link from "next/link";
 import PopupSearch from "../search/PopupSearch";
+import { SessionData } from "@/lib/constants";
 
 type Props = {
   navigateToChapter: (chapter: string | null) => Promise<void>;
