@@ -18,28 +18,38 @@ export default function SearchOptions({ isSignedIn }: { isSignedIn: boolean }) {
         aria-label="select search type"
       >
         <Button
-          color="gray.800"
+          variant="ghost"
           width={isPassageSearch ? "50%" : "48%"}
-          variant={isPassageSearch ? "solid" : "outline"}
-          backgroundColor={isPassageSearch ? "gray.300" : "inherit"}
-          onClick={() => setSearchType("passage")}
-          _hover={{
-            backgroundColor: !isPassageSearch ? "gray.100" : "gray.300",
+          border={`${isPassageSearch ? "2px" : "1px"} solid`}
+          borderColor={isPassageSearch ? "gray.400" : "gray.600"}
+          bg={{
+            base: isPassageSearch ? "gray.200" : "transparent",
+            _dark: "transparent",
           }}
+          colorPalette={{
+            base: "gray",
+            _dark: "white",
+          }}
+          onClick={() => setSearchType("passage")}
         >
           <RiBookmarkLine /> Scripture search
         </Button>
         <Button
-          color="gray.800"
+          variant="ghost"
           width={!isPassageSearch ? "50%" : "48%"}
-          variant={!isPassageSearch ? "solid" : "outline"}
-          backgroundColor={!isPassageSearch ? "gray.300" : "inherit"}
-          onClick={() => setSearchType("ai")}
-          _hover={{
-            backgroundColor: isPassageSearch ? "gray.100" : "gray.300",
+          border={`${!isPassageSearch ? "2px" : "1px"} solid`}
+          borderColor={!isPassageSearch ? "gray.400" : "gray.600"}
+          bg={{
+            base: !isPassageSearch ? "gray.200" : "transparent",
+            _dark: "transparent",
           }}
+          colorPalette={{
+            base: "gray",
+            _dark: "white",
+          }}
+          onClick={() => setSearchType("ai")}
         >
-          <RiGeminiLine /> Smart search
+          <RiGeminiLine /> Assisted search
         </Button>
       </Flex>
       {isPassageSearch ? (

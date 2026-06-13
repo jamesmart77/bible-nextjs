@@ -37,7 +37,7 @@ export default function KeywordHeading({
       alignItems={{ base: "start", sm: "center" }}
       mb={4}
     >
-      <Text fontSize="md" color="gray.600">
+      <Text fontSize="md" color="text.secondary">
         {totalResults} {totalResults === 1 ? "result" : "results"} for{" "}
         <b>{decodeURIComponent(queryTerm)}</b>{" "}
       </Text>

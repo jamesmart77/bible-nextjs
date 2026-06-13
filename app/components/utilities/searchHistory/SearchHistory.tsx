@@ -8,10 +8,7 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
-import {
-  RiGeminiLine,
-  RiBookmarkLine,
-} from "react-icons/ri";
+import { RiGeminiLine, RiBookmarkLine } from "react-icons/ri";
 import ScriptureHistoryItem from "./ScriptureHistoryItem";
 import SmartHistory from "./SmartHistory";
 
@@ -54,7 +51,11 @@ export default function SearchHistory({ searchHistory, open, setOpen }: Props) {
                 <Tabs.Content value="scripture">
                   <ListRoot listStyle="none" padding="0">
                     {searchHistory
-                      .filter((item) => item.queryType === "passage" || item.queryType === "keyword")
+                      .filter(
+                        (item) =>
+                          item.queryType === "passage" ||
+                          item.queryType === "keyword",
+                      )
                       .map((item) => (
                         <ListItem
                           key={item.id}
@@ -63,7 +64,7 @@ export default function SearchHistory({ searchHistory, open, setOpen }: Props) {
                           justifyContent="space-between"
                           py="0.5rem"
                           borderTop="1px solid"
-                          borderColor="gray.200"
+                          borderColor="border.muted"
                         >
                           <ScriptureHistoryItem item={item} />
                         </ListItem>

@@ -61,6 +61,15 @@ export default function PassageSearch() {
           width="100%"
           loading={isLoading}
           loadingText="Searching..."
+          variant="solid"
+          color={{
+            base: "white",
+            _dark: "gray.300",
+          }}
+          bg={{
+            base: "gray.700",
+            _dark: "teal.700",
+          }}
         >
           Search
         </Button>

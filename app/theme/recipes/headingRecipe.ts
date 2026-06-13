@@ -10,6 +10,7 @@ export const headingRecipe = defineRecipe({
     mt: 4,
     alignItems: "center",
     display: "flex",
+    color: "text.primary",
   },
   variants: {
     size: {

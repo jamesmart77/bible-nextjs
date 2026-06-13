@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import Header from "./components/Header";
+import Header from "./components/nav/Header";
 import NextTopLoader from "nextjs-toploader";
 import { Provider as ChakraProvider } from "@/app/components/chakra-snippets/Provider";
 import "./globals.css";

@@ -49,7 +49,7 @@ export default async function KeywordPage({
   return (
     <main>
       <Fade duration={750} triggerOnce style={{ height: "100vh" }}>
-        <Container py={8} bg="gray.100" pb="6rem">
+        <Container py={8} bg="bg.surface" pb="6rem">
           <Heading as="h2" fontSize="2xl" fontWeight="medium" mb={2}>
             <Flex>
               <Icon mr={1} mt={0.5}>
@@ -73,22 +73,22 @@ export default async function KeywordPage({
                   <ListItem
                     key={index}
                     my={2}
-                    bg="white"
                     p={3}
+                    bg="bg.surface"
                     borderRadius="10px"
                   >
                     <Heading
                       as="h3"
                       fontSize="xl"
                       fontWeight="light"
-                      color="teal.700"
+                      color="text.primary"
                     >
                       {result.reference}
                     </Heading>
                     <Text fontSize="md">{result.content}</Text>
                     <ChakraLink
                       asChild
-                      color="teal.700"
+                      color="text.secondary"
                       fontSize="sm"
                       mt={2}
                       mr={4}

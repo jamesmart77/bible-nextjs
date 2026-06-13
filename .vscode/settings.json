@@ -32,6 +32,7 @@
   "editor.formatOnSave": true,
   "chat.tools.terminal.autoApprove": {
     "npm audit": true,
-    "npx tsc": true
+    "npx tsc": true,
+    "npm install": true
   }
 }

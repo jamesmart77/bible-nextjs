@@ -46,11 +46,12 @@ export default async function Home() {
           <Text
             fontSize="xs"
             pr={2}
-            borderRightColor="gray.100"
+            borderRightColor="border.muted"
             borderRight="1px solid"
+            color="text.secondary"
           >
             Created by{" "}
-            <Link asChild color="teal.800">
+            <Link asChild color="accent.1">
               <NextLink
                 href="https://jamesmart77.github.io/portfolio-v2"
                 target="_blank"
@@ -60,8 +61,8 @@ export default async function Home() {
               </NextLink>
             </Link>
           </Text>
-          <Text fontSize="xs" ml={2}>
-            <Link asChild color="teal.800">
+          <Text fontSize="xs" ml={2} color="text.secondary">
+            <Link asChild color="accent.1">
               <NextLink href="/privacy">Privacy policy</NextLink>
             </Link>
           </Text>

@@ -9,7 +9,8 @@
     "dev": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "npx @chakra-ui/cli typegen app/theme/theme.ts"
   },
   "dependencies": {
     "@chakra-ui/react-use-outside-click": "^2.2.0",
@@ -32,7 +33,8 @@
     "supabase": "^2.101.0"
   },
   "devDependencies": {
-    "@chakra-ui/react": "^3.35.0",
+    "@chakra-ui/cli": "^3.36.0",
+    "@chakra-ui/react": "^3.36.0",
     "@emotion/react": "^11.14.0",
     "@types/node": "^24",
     "@types/react": "^19",
@@ -41,6 +43,7 @@
     "typescript": "^5"
   },
   "overrides": {
+    "esbuild": "0.28.1",
     "postcss": "8.5.15",
     "uuid": "14.0.0"
   }

@@ -138,7 +138,7 @@ export default function ActionsBar(props: Props) {
                             <Text fontSize="md">
                               Log in to view your search history.
                             </Text>
-                            <Button asChild variant="surface" mt={2}>
+                            <Button asChild variant={"cta" as any} mt={2}>
                               <a href={`/auth/login?returnTo=${passageUrl}`}>
                                 Log in
                               </a>

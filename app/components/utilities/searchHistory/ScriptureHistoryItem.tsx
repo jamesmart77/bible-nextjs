@@ -49,7 +49,7 @@ export default function ScriptureHistoryItem({
           </Heading>
         </Link>
       </Flex>
-      <Icon asChild color="teal.700">
+      <Icon asChild color="accent.1">
         <Link href={url || "#"}>
           <RiExternalLinkLine />
         </Link>

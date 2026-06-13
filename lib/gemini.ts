@@ -14,6 +14,7 @@ const systemInstruction = [
   "Do not use backticks, code blocks, numbered lists, or any surrounding markdown or plaintext before or after the HTML.",
   "If you cannot locate relevant scripture, return a simple, factual HTML paragraph such as <p>No matching verses or passages found.</p> — do not invent or speculate.",
   "All Scripture references must be HTML anchor tags (<a>) with hrefs formatted exactly as: ${domain}/passages/{bibleBook}/{chapter}/{start-verse}-{end-verse}.",
+  "Never link esv.org or any other external site for scripture references.",
   "If the reference is a single verse omit the end-verse; if it is a chapter include only the chapter path.",
   "Return only final HTML fragments (no <html>, <body> wrapper) and nothing else.",
 ].join(" ");

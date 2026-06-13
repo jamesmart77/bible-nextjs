@@ -54,9 +54,7 @@ export default function SignInModal() {
         throw new Error(payload?.message || "Unable to sign in.");
       }
 
-      setSuccessMessage(
-        "Sign in successful!",
-      );
+      setSuccessMessage("Sign in successful!");
       setEmail("");
       setTimeout(() => {
         setIsOpen(false);
@@ -83,7 +81,7 @@ export default function SignInModal() {
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0, 0, 0, 0.45)",
+            background: "rgba(26, 26, 26, 0.85)",
             zIndex: 999,
             display: "flex",
             alignItems: "center",
@@ -95,10 +93,11 @@ export default function SignInModal() {
             style={{
               width: "100%",
               maxWidth: "480px",
-              background: "white",
+              background: "#1A1A1A",
+              color: "#F0F0F0",
               borderRadius: "1rem",
               padding: "1.5rem",
-              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.15)",
+              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.35)",
             }}
           >
             <div
@@ -160,7 +159,7 @@ export default function SignInModal() {
                 challenge is required to prevent abuse.
               </Text>
 
-              <Button type="submit" colorScheme="teal" loading={loading}>
+              <Button type="submit" loading={loading} variant={"cta" as any}>
                 Sign in
               </Button>
               <Button

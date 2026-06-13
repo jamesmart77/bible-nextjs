@@ -1,12 +1,19 @@
-import { createSystem, defaultConfig } from "@chakra-ui/react";
-import { headingRecipe } from "./headingRecipe";
+import {
+  createSystem,
+  defaultConfig,
+  defineConfig,
+} from "@chakra-ui/react";
+import { headingRecipe } from "./recipes/headingRecipe";
+import { buttonRecipe } from "./recipes/buttonRecipe";
 
-export default createSystem(defaultConfig, {
+const config = defineConfig({
   globalCss: {
     body: {
       fontSize: "1rem",
-      color: "black",
-      backgroundColor: "white",
+      transitionProperty: "background-color, color",
+      transitionDuration: "0.2s",
+      margin: 0,
+      minHeight: "100vh",
     },
     h1: {
       ...headingRecipe.base,
@@ -44,8 +51,45 @@ export default createSystem(defaultConfig, {
         },
       },
     },
+    semanticTokens: {
+      colors: {
+        bg: {
+          body: {
+            default: { value: "#ffffff" },
+            _dark: { value: "#1A1A1A" },
+          },
+          surface: {
+            default: { value: "#f8fafc" },
+            _dark: { value: "#242424" },
+          },
+          muted: {
+            default: { value: "#f1f5f9" },
+            _dark: { value: "#2b2b2b" },
+          },
+        },
+        text: {
+          primary: {
+            default: { value: "#111827" },
+            _dark: { value: "#F0F0F0" },
+          },
+          secondary: {
+            default: { value: "#475569" },
+            _dark: { value: "#A8A8A8" },
+          },
+        },
+        border: {
+          muted: {
+            default: { value: "#e2e8f0" },
+            _dark: { value: "#3C646D" },
+          },
+        },
+      },
+    },
     recipes: {
       heading: headingRecipe,
+      button: buttonRecipe,
     },
   },
 });
+
+export default createSystem(defaultConfig, config)

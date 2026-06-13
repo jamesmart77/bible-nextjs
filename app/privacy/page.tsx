@@ -44,7 +44,13 @@ export default async function Passage({ params }: ParamProps) {
           <Text>
             JustScripture provides an ESV Bible reading and search app available
             at{" "}
-            <Link color="blue.700" asChild>
+            <Link
+              color={{
+                base: "blue.700",
+                _dark: "teal",
+              }}
+              asChild
+            >
               <NextLink href="/">https://justscripture.app</NextLink>
             </Link>
             . This Privacy Policy explains how your information is collected,
@@ -117,10 +123,13 @@ export default async function Passage({ params }: ParamProps) {
           <Text>
             If you have any questions or requests regarding this Privacy Policy,
             you can contact the creator and maintainer of JustScripture, James
-            Martineau, at:
+            Martineau, at:{" "}
             <Link
-              color="blue.700"
-              href="mailto:jamesmart77@gmail.com"
+              color={{
+                base: "blue.700",
+                _dark: "teal",
+              }}
+              href="mailto:jamesmart77@gmail.com?subject=JustScripture%20Privacy%20Policy%20Question"
               target="_blank"
             >
               jamesmart77@gmail.com
