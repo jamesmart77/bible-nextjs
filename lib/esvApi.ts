@@ -39,7 +39,7 @@ export async function getBiblePassage(book: string, passage: string[]) {
   ].join("");
 
   query = adjustQueryForSingleChapterBooks(query, !!verses, book);
-  const url = `https://api.esv.org/v3/passage/html/?q=${query}&include-short-copyright=false&include-first-verse-numbers=false&include-chapter-numbers=false&include-crossrefs=true`;
+  const url = `https://api.esv.org/v3/passage/html/?q=${query}&include-short-copyright=false&include-first-verse-numbers=true&include-chapter-numbers=false&include-crossrefs=true`;
 
   const options = getReqOptions();
 
