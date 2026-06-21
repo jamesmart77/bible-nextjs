@@ -1,57 +1,97 @@
-import { Box, Flex, Link, Text } from "@chakra-ui/react";
-import Image from "next/image";
+import {
+  Box,
+  Container,
+  Flex,
+  Heading,
+  Link,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import NextLink from "next/link";
 import { Fade } from "react-awesome-reveal";
 import SearchOptions from "./components/search";
+import { mapSearchHistoryForHome } from "./components/search/searchHistoryDisplay";
 import { getServerSession } from "@/lib/session";
+import { getUserSearchHistory } from "@/supabase/utils/user";
 
 export default async function Home() {
   const session = await getServerSession();
+  const searchHistory = session ? await getUserSearchHistory(session.id) : [];
+  const recentSearches = mapSearchHistoryForHome(searchHistory);
 
   return (
-    <Box>
-      <Box as="main" minHeight={{ base: "95vh", md: "inherit" }} pt="4rem">
+    <Box minH="calc(100vh - 73px)" display="flex" flexDirection="column">
+      <Box
+        as="main"
+        flex="1"
+        pt={{ base: "3rem", md: "4.5rem" }}
+        pb={{ base: "3rem", md: "5rem" }}
+        bg={{
+          base: "radial-gradient(circle at 50% 0%, rgba(45, 140, 132, 0.08), transparent 34%), var(--js-bg-body)",
+          _dark:
+            "radial-gradient(circle at 50% 0%, rgba(45, 140, 132, 0.13), transparent 36%), var(--js-bg-body)",
+        }}
+      >
         <Fade duration={750} triggerOnce>
-          <Flex
+          <Container
+            maxW="3xl"
+            display="flex"
             flexDirection="column"
             alignItems="center"
-            justifyContent={{ base: "start", sm: "center" }}
-            height={{ base: "inherit", sm: "70vh" }}
           >
-            <Box mt={{ base: "2rem", sm: "3rem" }}>
-              <Image
-                src="/logo.webp"
-                alt="Just scripture logo"
-                width={125}
-                height={125}
-                priority
-                style={{
-                  objectFit: "none",
-                }}
+            <Stack
+              gap="0.35rem"
+              align="center"
+              textAlign="center"
+              mb={{ base: "1.25rem", md: "1.5rem" }}
+            >
+              <Heading
+                as="h2"
+                fontFamily="serif"
+                fontSize={{ base: "2xl", md: "3xl" }}
+                fontWeight="500"
+                lineHeight="1.1"
+                color="var(--js-text-primary)"
+                m={0}
+              >
+                {session ? "Welcome back." : "Draw near to the Lord"}
+              </Heading>
+              <Text
+                maxW="32rem"
+                fontSize={{ base: "sm", md: "md" }}
+                color="var(--js-text-secondary)"
+              >
+                {session
+                  ? "Resume delighting in God's word."
+                  : "A quiet, distraction-free way to read and search Scripture."}
+              </Text>
+            </Stack>
+            <Box width="100%" maxW="42rem">
+              <SearchOptions
+                isSignedIn={!!session}
+                recentSearches={recentSearches}
+                variant="home"
               />
             </Box>
-            <Box p="2rem" width={{ base: "100%", md: "70%", lg: "60%" }}>
-              <SearchOptions isSignedIn={!!session} />
-            </Box>
-          </Flex>
+          </Container>
         </Fade>
       </Box>
       <Box
         as="footer"
-        pos={{ base: "relative", md: "fixed" }}
-        bottom={0}
         width="100%"
+        borderTop="1px solid"
+        borderColor="var(--js-border-muted)"
       >
-        <Flex justify="center" py={2}>
+        <Flex justify="center" py={3}>
           <Text
             fontSize="xs"
             pr={2}
-            borderRightColor="border.muted"
+            borderRightColor="var(--js-border-muted)"
             borderRight="1px solid"
-            color="text.secondary"
+            color="var(--js-text-secondary)"
           >
             Created by{" "}
-            <Link asChild color="accent.1">
+            <Link asChild color="var(--js-accent-solid)">
               <NextLink
                 href="https://jamesmart77.github.io/portfolio-v2"
                 target="_blank"
@@ -61,9 +101,9 @@ export default async function Home() {
               </NextLink>
             </Link>
           </Text>
-          <Text fontSize="xs" ml={2} color="text.secondary">
-            <Link asChild color="accent.1">
-              <NextLink href="/privacy">Privacy policy</NextLink>
+          <Text fontSize="xs" ml={2} color="var(--js-text-secondary)">
+            <Link asChild color="var(--js-accent-solid)">
+              <NextLink href="/privacy">Privacy Policy</NextLink>
             </Link>
           </Text>
         </Flex>

@@ -12,6 +12,8 @@ type Props = {
   setInputValue: (value: string) => void;
   setSearchType: (value: "passage" | "keyword") => void;
   submitOnEnter: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  showSearchTypeSettings?: boolean;
 };
 
 export default function AutocompleteInput(props: Props) {
@@ -21,6 +23,8 @@ export default function AutocompleteInput(props: Props) {
     searchType,
     setSearchType,
     submitOnEnter,
+    placeholder,
+    showSearchTypeSettings = true,
   } = props;
 
   const { isDesktop } = useDeviceBreakpoint();
@@ -60,15 +64,28 @@ export default function AutocompleteInput(props: Props) {
       <InputGroup
         flex="1"
         endElement={
-          <SearchTypSettings
-            searchType={searchType}
-            setSearchType={setSearchType}
-          />
+          showSearchTypeSettings ? (
+            <SearchTypSettings
+              searchType={searchType}
+              setSearchType={setSearchType}
+            />
+          ) : undefined
         }
       >
         <Input
+          size="lg"
+          borderRadius="xl"
+          borderColor="var(--js-border-muted)"
+          bg="var(--js-bg-input)"
+          color="var(--js-text-primary)"
+          _focusVisible={{
+            borderColor: "var(--js-accent-solid)",
+            boxShadow: "0 0 0 1px var(--js-accent-solid)",
+          }}
           {...getInputProps({
-            placeholder: searchType === "passage" ? "John 3:16" : "Contentment",
+            placeholder:
+              placeholder ||
+              (searchType === "passage" ? "John 3:16" : "Contentment"),
             onFocus: openMenu,
             onKeyDown: (event) => {
               if (
@@ -89,12 +106,12 @@ export default function AutocompleteInput(props: Props) {
           width="100%"
           mt={1}
           bg={{
-            base: "white",
-            _dark: "gray.700",
+            base: "var(--js-bg-surface)",
+            _dark: "var(--js-bg-surface)",
           }}
           borderWidth={1}
-          borderColor="border.muted"
-          borderRadius="md"
+          borderColor="var(--js-border-muted)"
+          borderRadius="lg"
           boxShadow="sm"
           zIndex={10}
           display={isOpen && bibleBooks.length > 0 ? "block" : "none"}
@@ -104,11 +121,12 @@ export default function AutocompleteInput(props: Props) {
               filteredBooks.map((book, index) => (
                 <List.Item
                   key={`${book}-${index}`}
-                  bg={highlightedIndex === index ? "gray.400" : "transparent"}
-                  color={{
-                    base: "gray.600",
-                    _dark: "gray.300",
-                  }}
+                  bg={
+                    highlightedIndex === index
+                      ? "var(--js-accent-subtle)"
+                      : "transparent"
+                  }
+                  color="var(--js-text-primary)"
                   px={4}
                   py={2}
                   cursor="pointer"

@@ -13,13 +13,13 @@ export default async function Header() {
     <header>
       <Flex
         borderBottom="1px solid"
-        borderBottomColor={{
-          base: "gray.300",
-          _dark: "gray.600",
-        }}
+        borderBottomColor="var(--js-border-muted)"
         justifyContent="space-between"
-        padding={{ base: "0.5rem", sm: "1rem" }}
+        alignItems="center"
+        padding={{ base: "0.65rem 0.85rem", sm: "0.85rem 1.25rem" }}
         gap={{ base: "0.3rem", sm: "0.5rem" }}
+        bg="var(--js-nav-bg)"
+        backdropFilter="blur(14px)"
       >
         <NextLink
           href="/"
@@ -31,11 +31,11 @@ export default async function Header() {
         >
           <Heading
             as="h1"
-            size={{ base: "2xl", sm: "3xl" }}
-            color={{
-              base: "teal.700",
-              _dark: "gray.300",
-            }}
+            fontFamily="serif"
+            fontSize={{ base: "xl", sm: "2xl" }}
+            fontWeight="600"
+            color="var(--js-text-primary)"
+            m={0}
           >
             JustScripture
           </Heading>
@@ -52,6 +52,8 @@ export default async function Header() {
                   aria-label="Navigate to account page"
                   variant="ghost"
                   size="md"
+                  color="var(--js-text-primary)"
+                  _hover={{ bg: "var(--js-bg-muted)" }}
                 >
                   <RiAccountCircleLine />
                 </IconButton>

@@ -3,7 +3,7 @@
 import { useRef, useState, type SubmitEventHandler } from "react";
 import { useRouter } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
-import { Button, Input, Text } from "@chakra-ui/react";
+import { Button, Input, Portal, Text } from "@chakra-ui/react";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
@@ -77,113 +77,155 @@ export default function SignInModal() {
       </Button>
 
       {isOpen ? (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(26, 26, 26, 0.85)",
-            zIndex: 999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "1rem",
-          }}
-        >
+        <Portal>
           <div
             style={{
-              width: "100%",
-              maxWidth: "480px",
-              background: "#1A1A1A",
-              color: "#F0F0F0",
-              borderRadius: "1rem",
-              padding: "1.5rem",
-              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.35)",
+              position: "fixed",
+              inset: 0,
+              minHeight: "100dvh",
+              background: "rgba(26, 26, 26, 0.85)",
+              zIndex: 999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "1rem",
+              overflowY: "auto",
             }}
           >
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "1rem",
+                width: "100%",
+                maxWidth: "480px",
+                maxHeight: "calc(100dvh - 2rem)",
+                margin: "auto",
+                overflowY: "auto",
+                background: "#1A1A1A",
+                color: "#F0F0F0",
+                borderRadius: "1rem",
+                padding: "1.5rem",
+                boxShadow: "0 20px 60px rgba(0, 0, 0, 0.35)",
+                animation: "signInModalSlideIn 180ms ease-out",
               }}
             >
-              <Text as="h2" fontSize="xl" fontWeight="bold">
-                Sign in
-              </Text>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setIsOpen(false);
-                  setError(null);
-                  setSuccessMessage(null);
-                }}
-                aria-label="Close sign in modal"
-              >
-                ×
-              </Button>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <label
-                htmlFor="signin-email"
+              <div
                 style={{
-                  display: "block",
-                  marginBottom: "0.5rem",
-                  fontWeight: 600,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "1rem",
                 }}
               >
-                Email address
-              </label>
-              <Input
-                id="signin-email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@example.com"
-                mb="0.75rem"
+                <Text as="h2" fontSize="xl" fontWeight="bold">
+                  Sign in
+                </Text>
+                <Button
+                  variant="ghost"
+                  color="#F6F0E8"
+                  bg="rgba(255, 255, 255, 0.08)"
+                  _hover={{ bg: "rgba(255, 255, 255, 0.16)" }}
+                  _focusVisible={{
+                    outline: "2px solid",
+                    outlineColor: "#5AB8AE",
+                    outlineOffset: "2px",
+                  }}
+                  onClick={() => {
+                    setIsOpen(false);
+                    setError(null);
+                    setSuccessMessage(null);
+                  }}
+                  aria-label="Close sign in modal"
+                >
+                  ×
+                </Button>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <label
+                  htmlFor="signin-email"
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  Email address
+                </label>
+                <Input
+                  id="signin-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@example.com"
+                  mb="0.75rem"
+                />
+                {error ? (
+                  <Text color="red.500" mb="0.75rem">
+                    {error}
+                  </Text>
+                ) : null}
+                {successMessage ? (
+                  <Text color="green.600" mb="0.75rem">
+                    {successMessage}
+                  </Text>
+                ) : null}
+
+                <Text fontSize="sm" color="gray.500" mb="1rem">
+                  This app creates one session per email. A lightweight
+                  reCAPTCHA challenge is required to prevent abuse.
+                </Text>
+
+                <Button
+                  type="submit"
+                  loading={loading}
+                  bg="#5AB8AE"
+                  color="#111315"
+                  border="1px solid"
+                  borderColor="#77D0C7"
+                  _hover={{ bg: "#77D0C7" }}
+                  _focusVisible={{
+                    outline: "2px solid",
+                    outlineColor: "#F6F0E8",
+                    outlineOffset: "2px",
+                  }}
+                >
+                  Sign in
+                </Button>
+                <Button
+                  variant="ghost"
+                  color="#F6F0E8"
+                  border="1px solid"
+                  borderColor="rgba(246, 240, 232, 0.38)"
+                  bg="rgba(255, 255, 255, 0.06)"
+                  _hover={{
+                    bg: "rgba(255, 255, 255, 0.14)",
+                    borderColor: "rgba(246, 240, 232, 0.62)",
+                  }}
+                  _focusVisible={{
+                    outline: "2px solid",
+                    outlineColor: "#5AB8AE",
+                    outlineOffset: "2px",
+                  }}
+                  onClick={() => {
+                    setIsOpen(false);
+                    setError(null);
+                    setSuccessMessage(null);
+                  }}
+                  disabled={loading}
+                  style={{ marginLeft: "0.75rem" }}
+                >
+                  Cancel
+                </Button>
+              </form>
+
+              <ReCAPTCHA
+                sitekey={SITE_KEY}
+                size="invisible"
+                ref={recaptchaRef}
+                onChange={() => void 0}
               />
-              {error ? (
-                <Text color="red.500" mb="0.75rem">
-                  {error}
-                </Text>
-              ) : null}
-              {successMessage ? (
-                <Text color="green.600" mb="0.75rem">
-                  {successMessage}
-                </Text>
-              ) : null}
-
-              <Text fontSize="sm" color="gray.500" mb="1rem">
-                This app creates one session per email. A lightweight reCAPTCHA
-                challenge is required to prevent abuse.
-              </Text>
-
-              <Button type="submit" loading={loading} variant={"cta" as any}>
-                Sign in
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setIsOpen(false);
-                  setError(null);
-                  setSuccessMessage(null);
-                }}
-                disabled={loading}
-                style={{ marginLeft: "0.75rem" }}
-              >
-                Cancel
-              </Button>
-            </form>
-
-            <ReCAPTCHA
-              sitekey={SITE_KEY}
-              size="invisible"
-              ref={recaptchaRef}
-              onChange={() => void 0}
-            />
+            </div>
           </div>
-        </div>
+        </Portal>
       ) : null}
     </>
   );

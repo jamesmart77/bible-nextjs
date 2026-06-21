@@ -7,8 +7,8 @@ import { ReactNode } from "react";
 
 export function Provider({ children }: { children: ReactNode }) {
   return (
-    <ChakraProvider value={system}>
-      <ColorModeProvider>{children}</ColorModeProvider>
-    </ChakraProvider>
+    <ColorModeProvider>
+      <ChakraProvider value={system}>{children}</ChakraProvider>
+    </ColorModeProvider>
   );
 }
