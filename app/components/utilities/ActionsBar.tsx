@@ -20,6 +20,9 @@ import SearchHistory from "./searchHistory/SearchHistory";
 import Link from "next/link";
 import PopupSearch from "../search/PopupSearch";
 import { SessionData } from "@/lib/constants";
+import AudioControlPanel, {
+  shouldResumeAudioPlayback,
+} from "../passages/AudioControlPanel";
 
 type Props = {
   navigateToChapter: (chapter: string | null) => Promise<void>;
@@ -27,6 +30,8 @@ type Props = {
   nextChapter: string | null;
   userSession: SessionData | null;
   passageUrl: string;
+  audioPassageRef: string;
+  audioSrc: string | null;
   searchHistory: SearchHistoryType[];
 };
 
@@ -37,10 +42,14 @@ export default function ActionsBar(props: Props) {
     nextChapter,
     userSession,
     passageUrl,
+    audioPassageRef,
+    audioSrc,
     searchHistory,
   } = props;
 
   const [showSearchDialog, setShowSearchDialog] = useState(false);
+  const [showAudioPanel, setShowAudioPanel] = useState(false);
+  const [shouldAutoPlayAudio, setShouldAutoPlayAudio] = useState(false);
   const [isPrevLoading, setIsPrevLoading] = useState(false);
   const [isNextLoading, setIsNextLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
@@ -52,6 +61,8 @@ export default function ActionsBar(props: Props) {
 
   useEffect(() => {
     const handleScroll = () => {
+      if (showAudioPanel) return;
+
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY.current) {
         // Scrolling down
@@ -65,7 +76,27 @@ export default function ActionsBar(props: Props) {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, [showAudioPanel]);
+
+  useEffect(() => {
+    if (!shouldResumeAudioPlayback()) return;
+
+    setShouldAutoPlayAudio(true);
+    setShowAudioPanel(true);
+    setIsOpen(false);
   }, []);
+
+  const openAudioPanel = () => {
+    setShouldAutoPlayAudio(false);
+    setShowAudioPanel(true);
+    setIsOpen(false);
+  };
+
+  const closeAudioPanel = () => {
+    setShouldAutoPlayAudio(false);
+    setShowAudioPanel(false);
+    setIsOpen(true);
+  };
 
   return (
     <>
@@ -79,8 +110,18 @@ export default function ActionsBar(props: Props) {
         setOpen={setIsHistoryOpen}
         searchHistory={searchHistory}
       />
+      <AudioControlPanel
+        open={showAudioPanel}
+        passageRef={audioPassageRef}
+        audioSrc={audioSrc}
+        previousChapter={previousChapter}
+        nextChapter={nextChapter}
+        autoPlayOnOpen={shouldAutoPlayAudio}
+        navigateToChapter={navigateToChapter}
+        onClose={closeAudioPanel}
+      />
       <ActionBar.Root
-        open={isOpen}
+        open={isOpen && !showAudioPanel}
         autoFocus={false}
         closeOnEscape={false}
         closeOnInteractOutside={false}
@@ -152,11 +193,12 @@ export default function ActionsBar(props: Props) {
               )}
               <ActionBar.Separator />
               <IconButton
-                disabled
                 variant="outline"
                 aria-label="Play passage audio"
                 title="Play passage audio"
                 rounded="full"
+                disabled={!audioSrc}
+                onClick={openAudioPanel}
               >
                 <FaRegCirclePlay />
               </IconButton>

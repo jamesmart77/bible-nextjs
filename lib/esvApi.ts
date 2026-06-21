@@ -27,6 +27,14 @@ function adjustQueryForSingleChapterBooks(
   return query;
 }
 
+function getAudioSrcFromPassageHtml(passageHtml: string) {
+  const mp3LinkMatch = passageHtml.match(
+    /<a\b(?=[^>]*\bclass=["'][^"']*\bmp3link\b[^"']*["'])(?=[^>]*\bhref=["']([^"']+)["'])[^>]*>/i
+  );
+
+  return mp3LinkMatch?.[1] ?? null;
+}
+
 export async function getBiblePassage(book: string, passage: string[]) {
   const [chapter, verses] = passage;
   const [startVerse, endVerse] = verses?.split("-") || [];
@@ -54,9 +62,12 @@ export async function getBiblePassage(book: string, passage: string[]) {
     const [prevStart, prevEnd] = data.passage_meta[0].prev_chapter || [];
     const [nextStart, nextEnd] = data.passage_meta[0].next_chapter || [];
 
+    const passageText = data.passages[0];
+
     return {
-      passageText: data.passages[0],
+      passageText,
       canonical: data.canonical,
+      audioSrc: getAudioSrcFromPassageHtml(passageText),
       previousChapter: prevStart ? `${prevStart}-${prevEnd}` : null,
       nextChapter: nextStart ? `${nextStart}-${nextEnd}` : null,
     };

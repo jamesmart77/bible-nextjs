@@ -71,10 +71,8 @@ export default async function Passage({ params }: ParamProps) {
   const searchHistory = await fetchSearchHistory(session);
 
   const [chapter, verses] = passage;
-  const { passageText, previousChapter, nextChapter } = await getBiblePassage(
-    book,
-    passage
-  );
+  const { passageText, canonical, audioSrc, previousChapter, nextChapter } =
+    await getBiblePassage(book, passage);
   const passageUrl = `/passages/${book}/${chapter}${
     verses ? `/${verses}` : ""
   }`;
@@ -95,6 +93,8 @@ export default async function Passage({ params }: ParamProps) {
             nextChapter={nextChapter}
             userSession={session}
             passageUrl={passageUrl}
+            audioPassageRef={canonical}
+            audioSrc={audioSrc}
             searchHistory={searchHistory}
           />
         </div>
