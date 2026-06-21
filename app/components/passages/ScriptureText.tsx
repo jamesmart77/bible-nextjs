@@ -1,21 +1,31 @@
 "use client";
 
-// import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import {
-  // Heading,
-  // Box,
+  Box,
   Container,
-  Text,
+  Heading,
   Link as ChakraLink,
-  // IconButton,
+  Text,
 } from "@chakra-ui/react";
-// import { toaster, Toaster } from "@/app/components/chakra-snippets/toaster";
-import parse, { Element } from "html-react-parser";
 import Link from "next/link";
-// import { RiShareFill } from "react-icons/ri";
-// import { Bounce } from "react-awesome-reveal";
+import parse, { Element, HTMLReactParserOptions } from "html-react-parser";
+import { toaster, Toaster } from "@/app/components/chakra-snippets/toaster";
 import { updateHtml } from "@/app/utils/htmlParser";
+import {
+  formatSelectedVersesForShare,
+  type SelectedVerse,
+  toggleSelectedVerse,
+} from "@/app/utils/selectedVerses";
+import {
+  getPassageVerseTextByNumber,
+  groupParagraphNodesByVerse,
+  hasVerseNumber,
+  serializeHtmlNode,
+} from "@/app/utils/scriptureHtmlParser";
 import Copyright from "./Copyright";
+import ShareSelectedVersesButton from "./ShareSelectedVersesButton";
+import Verse from "./Verse";
 
 type Props = {
   passageText: string;
@@ -24,239 +34,160 @@ type Props = {
   shouldShowFullChapterLink: boolean;
 };
 
-// type SelectedVerse = {
-//   verseNum: string;
-//   text: string;
-// };
-
 export default function ScriptureText({
   passageText,
   book,
   chapter,
   shouldShowFullChapterLink,
 }: Props) {
-  // const [selectedVerses, setSelectedVerses] = useState<SelectedVerse[]>([]);
+  const [selectedVerses, setSelectedVerses] = useState<SelectedVerse[]>([]);
+  const [hoveredVerseNum, setHoveredVerseNum] = useState<string | null>(null);
+  const verseTextByNumber = useMemo(
+    () => getPassageVerseTextByNumber(passageText),
+    [passageText]
+  );
 
-  // Helper to check if a verse is selected
-  // const isVerseSelected = (verseNum: string) =>
-  //   selectedVerses.some((v) => v.verseNum === verseNum);
+  const isVerseSelected = (verseNum: string) =>
+    selectedVerses.some((verse) => verse.verseNum === verseNum);
 
-  // const toastSuccess = (verseText: string) => {
-  //   navigator.clipboard.writeText(verseText);
-  //   toaster.create({
-  //     title: "Copied to clipboard",
-  //     type: "success",
-  //     duration: 1500,
-  //   });
-  // };
+  const toastSuccess = (verseText: string) => {
+    navigator.clipboard.writeText(verseText);
+    toaster.create({
+      title: "Copied to clipboard",
+      type: "success",
+      duration: 1500,
+    });
+  };
 
-  // Toggle verse selection
-  // const handleVerseClick = (verseNum: string, text: string) => {
-  //   setSelectedVerses((prev) => {
-  //     const exists = prev.find((v) => v.verseNum === verseNum);
-  //     let updated;
-  //     if (exists) {
-  //       updated = prev.filter((v) => v.verseNum !== verseNum);
-  //     } else {
-  //       updated = [...prev, { verseNum, text }];
-  //     }
-  //     // Sort: "1:1" first, then numerically
-  //     return updated.sort((a, b) => {
-  //       const parseNum = (v: string) => (v === "1:1" ? 0 : parseInt(v, 10));
-  //       return parseNum(a.verseNum) - parseNum(b.verseNum);
-  //     });
-  //   });
-  // };
+  const handleVerseClick = (verse: SelectedVerse) => {
+    setSelectedVerses((prev) => toggleSelectedVerse(prev, verse));
+  };
 
-  // const copySelectionsToClipboard = () => {
-  //   const verseLines = selectedVerses.map((v) => v.text);
-  //   const verseText = [
-  //     verseLines.join(" "),
-  //     `\n${book} ${chapter} | JustScripture (ESV)`,
-  //     `Read the full chapter: https://www.justscripture.app/passages/${book}/${chapter}`,
-  //   ].join("\n");
+  const copySelectionsToClipboard = () => {
+    const verseText = formatSelectedVersesForShare({
+      selectedVerses,
+      book,
+      chapter,
+    });
 
-  //   if (navigator.share) {
-  //     navigator
-  //       .share({
-  //         title: `JustScripture: ${book} ${chapter}`,
-  //         text: verseText,
-  //       })
-  //       .catch(() => {
-  //         toastSuccess(verseText);
-  //       });
-  //   } else {
-  //     toastSuccess(verseText);
-  //   }
+    if (navigator.share) {
+      navigator
+        .share({
+          title: `JustScripture: ${book} ${chapter}`,
+          text: verseText,
+        })
+        .catch(() => {
+          toastSuccess(verseText);
+        });
+    } else {
+      toastSuccess(verseText);
+    }
 
-  //   setSelectedVerses([]);
-  // };
+    setSelectedVerses([]);
+  };
 
-  // // Custom parser to group verses in <p> by <b class="chapter-num"> and <b class="verse-num">
-  // const parseVersesFromParagraph = (pNode: Element, index: number) => {
-  //   const children = pNode.children || [];
-  //   const verses: { verseNum: string; nodes: any[] }[] = [];
-  //   let currentVerseNum = "";
-  //   let currentNodes: any[] = [];
-  //   let collecting = false;
+  const parseVersesFromParagraph = (pNode: Element, index: number) => {
+    const verses = groupParagraphNodesByVerse(pNode);
 
-  //   children.forEach((child) => {
-  //     if (
-  //       child.type === "tag" &&
-  //       child.name === "b" &&
-  //       child.attribs &&
-  //       (child.attribs.class === "chapter-num" ||
-  //         child.attribs.class === "verse-num")
-  //     ) {
-  //       // If already collecting, push previous verse
-  //       if (collecting && currentVerseNum) {
-  //         verses.push({ verseNum: currentVerseNum, nodes: [...currentNodes] });
-  //       }
-  //       // Start new verse
-  //       collecting = true;
-  //       currentVerseNum =
-  //         child.children &&
-  //         child.children[0] &&
-  //         child.children[0].type === "text" &&
-  //         typeof (child.children[0] as any).data === "string"
-  //           ? (child.children[0] as any).data.replace(/\u00a0/g, "").trim() // Remove &nbsp;
-  //           : "";
-  //       currentNodes = [child];
-  //     } else if (collecting) {
-  //       if (
-  //         child.type === "tag" &&
-  //         child.name === "sup" &&
-  //         child.children?.length > 0
-  //       ) {
-  //         child.children.forEach((supChild) => {
-  //           if (supChild.type === "tag" && supChild.name === "a") {
-  //             supChild.attribs = { ...supChild.attribs, href: "#" };
-  //           }
-  //         });
-  //       }
-  //       currentNodes.push(child);
-  //     }
-  //   });
-  //   // Push last verse
-  //   if (collecting && currentVerseNum) {
-  //     verses.push({ verseNum: currentVerseNum, nodes: [...currentNodes] });
-  //   }
-  //   return (
-  //     <Box as="span" key={index}>
-  //       {verses.map((verse, vIdx) => {
-  //         // Render ONLY verse text for selection -- not cross refs or anything else
-  //         const verseText = verse.nodes
-  //           .map((n) => {
-  //             if (n.type === "text") return n.data;
-  //             if (n.type === "tag" && n.children)
-  //               return n.children.map((c: any) => c.data || "").join("");
-  //             return "";
-  //           })
-  //           .join("")
-  //           .replace(/\s+/g, " ")
-  //           .trim();
-  //         return (
-  //           <Box
-  //             as="span"
-  //             key={verse.verseNum + vIdx}
-  //             bg={isVerseSelected(verse.verseNum) ? "yellow.300" : undefined}
-  //             cursor="pointer"
-  //             borderRadius="md"
-  //             mx={0.5}
-  //             onClick={() => handleVerseClick(verse.verseNum, verseText)}
-  //             _hover={{
-  //               textDecor: "underline dotted",
-  //               textUnderlineOffset: "6px",
-  //               textDecorationColor: "gray.300", // set dotted line color
-  //             }}
-  //           >
-  //             {verse.nodes.map((n, i) => (
-  //               <Fragment key={i}>
-  //                 {parse(require("dom-serializer").default(n))}
-  //               </Fragment>
-  //             ))}
-  //           </Box>
-  //         );
-  //       })}
-  //     </Box>
-  //   );
-  // };
+    return (
+      <Box as="span" key={index}>
+        {verses.map((verse, verseIndex) => (
+          <Verse
+            key={`${verse.verseNum}-${verseIndex}`}
+            verse={verse}
+            isSelected={isVerseSelected(verse.verseNum)}
+            isHovered={hoveredVerseNum === verse.verseNum}
+            onClick={() =>
+              handleVerseClick({
+                verseNum: verse.verseNum,
+                text: verseTextByNumber.get(verse.verseNum) ?? verse.text,
+              })
+            }
+            onMouseEnter={() => setHoveredVerseNum(verse.verseNum)}
+            onMouseLeave={() => setHoveredVerseNum(null)}
+          />
+        ))}
+      </Box>
+    );
+  };
 
-  // const options: HTMLReactParserOptions = {
-  //   replace: (domNode, index) => {
-  //     if (domNode.type === "tag" && domNode.name === "h2") {
-  //       return (
-  //         <Heading
-  //           key={index}
-  //           as="h2"
-  //           fontSize="2xl"
-  //           fontWeight="bold"
-  //           mb="1rem"
-  //         >
-  //           {domNode.children[0] && domNode.children[0].type === "text"
-  //             ? (domNode.children[0] as any).data
-  //             : null}
-  //         </Heading>
-  //       );
-  //     }
-  //     if (domNode.type === "tag" && domNode.name === "p") {
-  //       // Group and render verses
-  //       return parseVersesFromParagraph(domNode as Element, index);
-  //     }
-  //     if (
-  //       domNode.type === "tag" &&
-  //       domNode.name === "h3" &&
-  //       domNode.children[0] &&
-  //       domNode.children[0].type === "text" &&
-  //       (domNode.children[0] as any).data
-  //     ) {
-  //       return (
-  //         <Heading
-  //           key={index}
-  //           as="h3"
-  //           fontSize="md"
-  //           fontWeight="bold"
-  //           mt="1rem"
-  //           pb="0.25rem"
-  //         >
-  //           {domNode.children.map((child, index) => (
-  //             <Fragment key={index}>
-  //               {parse(require("dom-serializer").default(child), options)}
-  //             </Fragment>
-  //           ))}
-  //         </Heading>
-  //       );
-  //     }
-  //     // footnotes formatting
-  //     if (
-  //       domNode.type === "tag" &&
-  //       domNode.name === "div" &&
-  //       (domNode as Element).attribs &&
-  //       (domNode as Element).attribs.class === "footnotes extra_text"
-  //     ) {
-  //       return (
-  //         <Box
-  //           key={index}
-  //           borderTop="1px solid"
-  //           borderColor="gray.200"
-  //           mt="1rem"
-  //         >
-  //           {domNode.children && domNode.children.length > 0
-  //             ? domNode.children.map((child, childIdx) => (
-  //                 <Fragment key={`${index}-footnote-${childIdx}`}>
-  //                   {parse(require("dom-serializer").default(child), options)}
-  //                 </Fragment>
-  //               ))
-  //             : null}
-  //         </Box>
-  //       );
-  //     }
-  //   },
-  // };
+  const options: HTMLReactParserOptions = {
+    replace: (domNode, index) => {
+      if (domNode.type === "tag" && domNode.name === "h2") {
+        return (
+          <Heading
+            key={index}
+            as="h2"
+            fontSize="2xl"
+            fontWeight="bold"
+            mb="1rem"
+          >
+            {domNode.children[0] && domNode.children[0].type === "text"
+              ? domNode.children[0].data
+              : null}
+          </Heading>
+        );
+      }
 
-  const passageHtml = parse(passageText, {
-    replace: (node) => updateHtml(node as Element),
-  });
+      if (domNode.type === "tag" && domNode.name === "p") {
+        if (hasVerseNumber(domNode as Element)) {
+          return parseVersesFromParagraph(domNode as Element, index);
+        }
+      }
+
+      if (
+        domNode.type === "tag" &&
+        domNode.name === "h3" &&
+        domNode.children[0] &&
+        domNode.children[0].type === "text" &&
+        domNode.children[0].data
+      ) {
+        return (
+          <Heading
+            key={index}
+            as="h3"
+            display="block"
+            fontSize="md"
+            fontWeight="bold"
+            mt="1rem"
+            pb="0.25rem"
+          >
+            {domNode.children.map((child, childIndex) => (
+              <Fragment key={childIndex}>
+                {parse(serializeHtmlNode(child), options)}
+              </Fragment>
+            ))}
+          </Heading>
+        );
+      }
+
+      if (
+        domNode.type === "tag" &&
+        domNode.name === "div" &&
+        domNode.attribs.class === "footnotes extra_text"
+      ) {
+        return (
+          <Box
+            key={index}
+            borderTop="1px solid"
+            borderColor="gray.200"
+            mt="1rem"
+          >
+            {domNode.children.map((child, childIndex) => (
+              <Fragment key={`${index}-footnote-${childIndex}`}>
+                {parse(serializeHtmlNode(child), options)}
+              </Fragment>
+            ))}
+          </Box>
+        );
+      }
+
+      const updatedNode = updateHtml(domNode as Element);
+      if (updatedNode !== domNode) return updatedNode;
+    },
+  };
+
+  const passageHtml = parse(passageText, options);
 
   return (
     <Container
@@ -264,6 +195,7 @@ export default function ScriptureText({
       maxW={{ base: "100%", md: "900px" }}
       marginInline={{ base: "auto" }}
     >
+      <Toaster />
       <Text as="section" pb={6}>
         {passageHtml}
       </Text>
@@ -272,21 +204,10 @@ export default function ScriptureText({
           <Link href={`/passages/${book}/${chapter}`}>Read full chapter</Link>
         </ChakraLink>
       )}
-      {/* {selectedVerses.length > 0 && (
-        <Bounce
-          triggerOnce
-          style={{ position: "fixed", bottom: "1.5rem", right: "1rem" }}
-        >
-          <Toaster />
-          <IconButton
-            aria-label="Share selected verses"
-            rounded="full"
-            onClick={copySelectionsToClipboard}
-          >
-            <RiShareFill />
-          </IconButton>
-        </Bounce>
-      )} */}
+      <ShareSelectedVersesButton
+        isVisible={selectedVerses.length > 0}
+        onClick={copySelectionsToClipboard}
+      />
       <Copyright />
     </Container>
   );
