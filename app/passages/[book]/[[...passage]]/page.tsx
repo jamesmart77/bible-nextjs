@@ -60,6 +60,10 @@ async function fetchSearchHistory(session: SessionData | null) {
   return searchHistory || [];
 }
 
+function getBookNameFromCanonical(canonical: string, fallback: string) {
+  return canonical.replace(/\s+\d.*$/, "") || fallback;
+}
+
 export default async function Passage({ params }: ParamProps) {
   const { book, passage } = await params;
 
@@ -76,6 +80,8 @@ export default async function Passage({ params }: ParamProps) {
   const passageUrl = `/passages/${book}/${chapter}${
     verses ? `/${verses}` : ""
   }`;
+  const commentaryChapter = Number(chapter);
+  const commentaryBookName = getBookNameFromCanonical(canonical, book);
 
   return (
     <main>
@@ -96,6 +102,9 @@ export default async function Passage({ params }: ParamProps) {
             audioPassageRef={canonical}
             audioSrc={audioSrc}
             searchHistory={searchHistory}
+            commentaryBookSlug={book}
+            commentaryBookName={commentaryBookName}
+            commentaryChapter={commentaryChapter}
           />
         </div>
       </Fade>

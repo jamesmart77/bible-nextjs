@@ -23,6 +23,7 @@ import { SessionData } from "@/lib/constants";
 import AudioControlPanel, {
   shouldResumeAudioPlayback,
 } from "../passages/AudioControlPanel";
+import CommentaryDrawer from "../passages/CommentaryDrawer";
 
 type Props = {
   navigateToChapter: (chapter: string | null) => Promise<void>;
@@ -33,6 +34,9 @@ type Props = {
   audioPassageRef: string;
   audioSrc: string | null;
   searchHistory: SearchHistoryType[];
+  commentaryBookSlug: string;
+  commentaryBookName: string;
+  commentaryChapter: number;
 };
 
 export default function ActionsBar(props: Props) {
@@ -45,6 +49,9 @@ export default function ActionsBar(props: Props) {
     audioPassageRef,
     audioSrc,
     searchHistory,
+    commentaryBookSlug,
+    commentaryBookName,
+    commentaryChapter,
   } = props;
 
   const [showSearchDialog, setShowSearchDialog] = useState(false);
@@ -202,6 +209,12 @@ export default function ActionsBar(props: Props) {
               >
                 <FaRegCirclePlay />
               </IconButton>
+              <ActionBar.Separator />
+              <CommentaryDrawer
+                bookSlug={commentaryBookSlug}
+                bookName={commentaryBookName}
+                chapter={commentaryChapter}
+              />
               <ActionBar.Separator />
               <IconButton
                 variant="outline"
