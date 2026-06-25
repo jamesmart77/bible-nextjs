@@ -1,5 +1,6 @@
 import { EncryptJWT, jwtDecrypt, JWTPayload } from "jose";
 import { cookies } from "next/headers";
+import { unstable_rethrow } from "next/navigation";
 import { SessionData, COOKIE_NAME, SESSION_EXP_TIME } from "./constants";
 
 function getKey() {
@@ -50,6 +51,7 @@ export async function getServerSession(): Promise<SessionData | null> {
     }
     return await decryptSession(cookie);
   } catch (err) {
+    unstable_rethrow(err);
     console.error("Failed to get server session:", err);
     return null;
   }

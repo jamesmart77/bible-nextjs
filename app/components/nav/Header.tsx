@@ -1,9 +1,7 @@
-import { Flex, Heading, IconButton } from "@chakra-ui/react";
+import { Flex, Heading } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { RiAccountCircleLine } from "react-icons/ri";
-import { Link as ChakraLink } from "@chakra-ui/react";
 import { getServerSession } from "@/lib/session";
-import SignInModal from "@/app/components/nav/SignInModal";
+import AuthNav from "@/app/components/nav/AuthNav";
 import { ColorModeButton } from "@/app/theme/ColorMode";
 
 export default async function Header() {
@@ -42,24 +40,7 @@ export default async function Header() {
         </NextLink>
         <Flex alignItems="center" gap="0.5rem">
           <ColorModeButton />
-          {!session ? (
-            <SignInModal />
-          ) : (
-            <ChakraLink asChild title="Account">
-              <NextLink href="/account">
-                <IconButton
-                  rounded="full"
-                  aria-label="Navigate to account page"
-                  variant="ghost"
-                  size="md"
-                  color="var(--js-text-primary)"
-                  _hover={{ bg: "var(--js-bg-muted)" }}
-                >
-                  <RiAccountCircleLine />
-                </IconButton>
-              </NextLink>
-            </ChakraLink>
-          )}
+          <AuthNav initialIsSignedIn={!!session} />
         </Flex>
       </Flex>
     </header>

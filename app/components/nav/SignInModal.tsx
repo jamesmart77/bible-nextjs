@@ -7,7 +7,11 @@ import { Button, Input, Portal, Text } from "@chakra-ui/react";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
-export default function SignInModal() {
+type SignInModalProps = {
+  onSignedIn?: () => void;
+};
+
+export default function SignInModal({ onSignedIn }: SignInModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +62,7 @@ export default function SignInModal() {
       setEmail("");
       setTimeout(() => {
         setIsOpen(false);
+        onSignedIn?.();
         router.refresh();
       }, 1000);
     } catch (err: any) {
