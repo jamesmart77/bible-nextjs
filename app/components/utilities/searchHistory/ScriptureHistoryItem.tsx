@@ -2,6 +2,7 @@ import { SearchHistory as SearchHistoryType } from "@/supabase/utils/user";
 import { Flex, Icon, Heading } from "@chakra-ui/react";
 import Link from "next/link";
 import { RiBookmarkLine, RiExternalLinkLine, RiKeyLine } from "react-icons/ri";
+import { capitalizeFirstLetter } from "./formatSearchHistoryQuery";
 
 export default function ScriptureHistoryItem({
   item,
@@ -45,7 +46,9 @@ export default function ScriptureHistoryItem({
             {item.queryType === "passage" ? <RiBookmarkLine /> : <RiKeyLine />}
           </Icon>
           <Heading fontSize="md" fontWeight="500" margin={0}>
-            {item.query}
+            {item.queryType === "passage"
+              ? capitalizeFirstLetter(item.query)
+              : item.query}
           </Heading>
         </Link>
       </Flex>

@@ -134,6 +134,38 @@ export default function SearchOptions({
     }
   }
 
+  async function handleAssistedSearch() {
+    const formattedQuery =
+      inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+    const { hasError, result } = await queryAssistedSearch(formattedQuery);
+
+    setAssistedResult(result);
+
+    if (hasError) {
+      setHasAssistedError(true);
+      return;
+    }
+
+    const saveResult = await saveSearchQuery(inputValue, "ai", result);
+    if (saveResult?.status === 200) {
+      router.refresh();
+    }
+  }
+
+  async function handleNavigatingSearch(
+    type: Exclude<SearchType, "assisted">,
+  ) {
+    const url = buildSearchUrl(type, inputValue);
+
+    if (!url) {
+      setIsLoading(false);
+      return;
+    }
+
+    await saveSearchQuery(inputValue.trim(), type);
+    router.push(url);
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!inputValue.trim()) return;
@@ -142,30 +174,12 @@ export default function SearchOptions({
     setHasAssistedError(false);
 
     if (searchType === "assisted") {
-      const formattedQuery =
-        inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
-      const { hasError, result } = await queryAssistedSearch(formattedQuery);
-
-      if (hasError) {
-        setHasAssistedError(true);
-      } else {
-        await saveSearchQuery(inputValue, "ai", result);
-      }
-
-      setAssistedResult(result);
+      await handleAssistedSearch();
       setIsLoading(false);
       return;
     }
 
-    const url = buildSearchUrl(searchType, inputValue);
-
-    if (url) {
-      await saveSearchQuery(inputValue.trim(), searchType);
-      router.push(url);
-      return;
-    }
-
-    setIsLoading(false);
+    await handleNavigatingSearch(searchType);
   };
 
   const handleRecentSearchClick = (search: RecentSearch) => {

@@ -44,7 +44,7 @@ export default function SearchHistory({ searchHistory, open, setOpen }: Props) {
                   </Tabs.Trigger>
                   <Tabs.Trigger value="smartSearch">
                     <RiGeminiLine />
-                    Smart search
+                    Assisted Search
                   </Tabs.Trigger>
                   <Tabs.Indicator rounded="l2" />
                 </Tabs.List>
