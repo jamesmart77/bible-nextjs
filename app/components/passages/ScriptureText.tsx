@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import parse, { Element, HTMLReactParserOptions } from "html-react-parser";
 import { toaster, Toaster } from "@/app/components/chakra-snippets/toaster";
-import { updateHtml } from "@/app/utils/htmlParser";
+import { replaceEsvHtmlNode } from "@/app/utils/htmlParser";
 import {
   formatSelectedVersesForShare,
   type SelectedVerse,
@@ -182,8 +182,7 @@ export default function ScriptureText({
         );
       }
 
-      const updatedNode = updateHtml(domNode as Element);
-      if (updatedNode !== domNode) return updatedNode;
+      return replaceEsvHtmlNode(domNode, index);
     },
   };
 

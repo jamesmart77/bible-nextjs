@@ -13,7 +13,7 @@ import {
   FaAngleLeft,
   FaAngleRight,
   FaMagnifyingGlass,
-  FaRegCirclePlay,
+  FaVolumeHigh,
 } from "react-icons/fa6";
 import { SearchHistory as SearchHistoryType } from "@/supabase/utils/user";
 import SearchHistory from "./searchHistory/SearchHistory";
@@ -201,13 +201,13 @@ export default function ActionsBar(props: Props) {
               <ActionBar.Separator />
               <IconButton
                 variant="outline"
-                aria-label="Play passage audio"
-                title="Play passage audio"
+                aria-label="Open passage audio controls"
+                title="Open passage audio controls"
                 rounded="full"
                 disabled={!audioSrc}
                 onClick={openAudioPanel}
               >
-                <FaRegCirclePlay />
+                <FaVolumeHigh />
               </IconButton>
               <ActionBar.Separator />
               <CommentaryDrawer

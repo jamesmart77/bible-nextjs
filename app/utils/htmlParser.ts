@@ -1,4 +1,10 @@
-import { Element } from 'html-react-parser';
+import {
+    attributesToProps,
+    domToReact,
+    type DOMNode,
+    Element,
+    type HTMLReactParserOptions,
+} from 'html-react-parser';
 import React from 'react';
 import Audio from '../components/passages/Audio';
 
@@ -31,4 +37,28 @@ export const updateHtml = (node: Element) => {
     // if (updatedNode === node) updatedNode = transformCrossRef(node);
     
     return updatedNode;
+}
+
+export const replaceEsvHtmlNode: NonNullable<HTMLReactParserOptions['replace']> = (
+    domNode,
+    index
+) => {
+    if (!(domNode instanceof Element)) return;
+
+    if (domNode.name === 'note') {
+        return React.createElement(
+            'span',
+            {
+                ...attributesToProps(domNode.attribs),
+                key: index,
+                role: domNode.attribs.role ?? 'note',
+            },
+            domToReact(domNode.children as DOMNode[], {
+                replace: replaceEsvHtmlNode,
+            })
+        );
+    }
+
+    const updatedNode = updateHtml(domNode);
+    if (updatedNode !== domNode) return updatedNode;
 }

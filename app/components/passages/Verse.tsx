@@ -2,6 +2,7 @@
 
 import { Box } from "@chakra-ui/react";
 import { domToReact, type DOMNode } from "html-react-parser";
+import { replaceEsvHtmlNode } from "@/app/utils/htmlParser";
 import { type VerseNodeGroup } from "@/app/utils/scriptureHtmlParser";
 
 type Props = {
@@ -44,7 +45,9 @@ export default function Verse({
       textUnderlineOffset={isHovered ? "6px" : undefined}
       textDecorationColor={isHovered ? "gray.300" : undefined}
     >
-      {domToReact(verse.nodes as DOMNode[])}
+      {domToReact(verse.nodes as DOMNode[], {
+        replace: replaceEsvHtmlNode,
+      })}
     </Box>
   );
 }
