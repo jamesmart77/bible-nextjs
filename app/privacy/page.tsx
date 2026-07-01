@@ -1,5 +1,6 @@
 import { Fade } from "react-awesome-reveal";
 import { Box, Heading, Link, List, Text } from "@chakra-ui/react";
+import type { Metadata } from "next";
 import NextLink from "next/link";
 
 type ParamProps = {
@@ -9,24 +10,38 @@ type ParamProps = {
   }>;
 };
 
-export async function generateMetadata({ params }: ParamProps) {
-  return {
-    title: "Privacy Policy - JustScripture",
-    description: "Read our privacy policy to learn how we handle your data.",
+const title = "Privacy Policy - JustScripture";
+const description = "Read our privacy policy to learn how we handle your data.";
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: "/privacy",
+  },
+  openGraph: {
+    title,
+    description,
+    url: "/privacy",
     siteName: "JustScripture",
-    openGraph: {
-      title: "Privacy Policy - JustScripture",
-      description: "Read our privacy policy to learn how we handle your data.",
-      images: [
-        {
-          url: "https://www.justscripture.app/logo.webp",
-          width: 50,
-          height: 50,
-        },
-      ],
-    },
-  };
-}
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "JustScripture",
+        type: "image/png",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: ["/og-image.png"],
+  },
+};
 
 export default async function Passage({ params }: ParamProps) {
   const today = new Date();
