@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { getServerSession } from '@/lib/session';
 import ActionsBar from "@/app/components/utilities/ActionsBar";
 import ScriptureText from "@/app/components/passages/ScriptureText";
@@ -14,11 +15,13 @@ type ParamProps = {
   }>;
 };
 
-export async function generateMetadata({ params }: ParamProps) {
+export async function generateMetadata({
+  params,
+}: ParamProps): Promise<Metadata> {
   const { book, passage } = await params;
 
   if (!passage) {
-    return null;
+    return {};
   }
 
   const [chapter, verses] = passage;
@@ -27,21 +30,42 @@ export async function generateMetadata({ params }: ParamProps) {
   const chapterVerses = `${chapter}${startVerse ? `:${startVerse}` : ""}${
     endVerse ? `-${endVerse}` : ""
   }`;
+  const title = `${book} ${chapterVerses}`;
+  const description = `Read ${title} in the ESV Bible`;
+  const url = `https://www.justscripture.app/passages/${encodeURIComponent(
+    book
+  )}/${encodeURIComponent(chapter)}${
+    verses ? `/${encodeURIComponent(verses)}` : ""
+  }`;
+  const image = "https://www.justscripture.app/og-image.png";
 
   return {
-    title: `${book} ${chapterVerses}`,
-    description: `Read ${book} ${chapterVerses} in the ESV Bible`,
-    siteName: "JustScripture",
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
-      title: `${book} ${chapterVerses}`,
-      description: `Read ${book} ${chapterVerses} in the ESV Bible`,
+      title,
+      description,
+      url,
+      siteName: "JustScripture",
+      type: "website",
       images: [
         {
-          url: "https://www.justscripture.app/logo.webp",
-          width: 50,
-          height: 50,
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: "JustScripture",
+          type: "image/png",
         },
       ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
     },
   };
 }
