@@ -1,5 +1,6 @@
 "use server";
 import { GoogleGenAI } from "@google/genai";
+import { getServerSession } from "@/lib/session";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const isLocal = process.env.IS_LOCAL === "true";
@@ -20,6 +21,11 @@ const systemInstruction = [
 ].join(" ");
 
 export default async function askGemini(query: string) {
+  const session = await getServerSession();
+  if (!session) {
+    throw new Error("Log in to use Assisted search.");
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-lite",

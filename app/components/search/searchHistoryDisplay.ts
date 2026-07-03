@@ -6,6 +6,7 @@ export type RecentSearch = {
   id: string;
   type: SearchType;
   label: string;
+  result: string | null;
 };
 
 export function truncateAssistedQuery(query: string, maxWords = 4) {
@@ -17,11 +18,12 @@ export function truncateAssistedQuery(query: string, maxWords = 4) {
 }
 
 export function getDisplayLabel(search: RecentSearch) {
-  if (search.type === "assisted") {
-    return truncateAssistedQuery(search.label, 4);
-  }
+  const label =
+    search.type === "assisted"
+      ? truncateAssistedQuery(search.label, 4)
+      : search.label;
 
-  return search.label;
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 function normalizeRecentSearch(item: SearchHistoryType): RecentSearch | null {
@@ -31,12 +33,12 @@ function normalizeRecentSearch(item: SearchHistoryType): RecentSearch | null {
     id: String(item.id),
     type: item.queryType === "ai" ? "assisted" : (item.queryType as SearchType),
     label: item.query,
+    result: item.queryRes,
   };
 }
 
 export function mapSearchHistoryForHome(searchHistory: SearchHistoryType[]) {
   return searchHistory
     .map(normalizeRecentSearch)
-    .filter((search): search is RecentSearch => Boolean(search))
-    .slice(0, 4);
+    .filter((search): search is RecentSearch => Boolean(search));
 }

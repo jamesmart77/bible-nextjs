@@ -1,10 +1,14 @@
 "use client";
 
 import type { IconType } from "react-icons";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import NextLink from "next/link";
-import parse from "html-react-parser";
+import parse, {
+  domToReact,
+  type DOMNode,
+  type HTMLReactParserOptions,
+} from "html-react-parser";
 import {
   Alert,
   Box,
@@ -23,6 +27,15 @@ import { Fade } from "react-awesome-reveal";
 import askGemini from "@/lib/gemini";
 import { saveSearchQuery } from "@/lib/db";
 import { handlePassageSearch } from "@/app/utils/passageParser";
+import SignInModal from "@/app/components/nav/SignInModal";
+import {
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+} from "@/app/components/chakra-snippets/dialog";
 import AutocompleteInput from "./passage/Autocomplete";
 import {
   getDisplayLabel,
@@ -54,6 +67,7 @@ const searchTypePlaceholder: Record<Exclude<SearchType, "passage">, string> = {
 };
 
 const quickPassages = ["Genesis 1", "Psalm 23", "John 1", "Romans 8"];
+const RECENT_SEARCH_BATCH_SIZE = 4;
 
 function buildSearchUrl(type: SearchType, query: string) {
   const trimmedQuery = query
@@ -77,45 +91,91 @@ function recentSearchUrl(search: RecentSearch) {
   return buildSearchUrl(search.type, search.label);
 }
 
+function parseAssistedResult(result: string) {
+  const options: HTMLReactParserOptions = {
+    replace: (domNode) => {
+      if (
+        domNode.type === "tag" &&
+        domNode.name === "a" &&
+        domNode.attribs?.href
+      ) {
+        return (
+          <NextLink
+            href={domNode.attribs.href}
+            style={{
+              color: "var(--js-accent-solid)",
+              textDecoration: "underline",
+              textUnderlineOffset: "2px",
+            }}
+          >
+            {domToReact(domNode.children as DOMNode[], options)}
+          </NextLink>
+        );
+      }
+    },
+  };
+
+  return parse(result, options);
+}
+
 export default function SearchOptions({
   isSignedIn,
   recentSearches = [],
   variant = "compact",
 }: Props) {
   const router = useRouter();
+  const [isSessionAuthenticated, setIsSessionAuthenticated] =
+    useState(isSignedIn);
+  const isSessionAuthenticatedRef = useRef(isSignedIn);
   const [searchType, setSearchType] = useState<SearchType>("passage");
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasAssistedError, setHasAssistedError] = useState(false);
+  const [requiresSignIn, setRequiresSignIn] = useState(false);
   const [assistedResult, setAssistedResult] = useState<string | undefined>("");
+  const [selectedAssistedSearch, setSelectedAssistedSearch] =
+    useState<RecentSearch | null>(null);
+  const [visibleRecentSearchCount, setVisibleRecentSearchCount] = useState(
+    RECENT_SEARCH_BATCH_SIZE,
+  );
 
-  const hasRecentSearches = isSignedIn && recentSearches.length > 0;
+  const hasRecentSearches =
+    isSessionAuthenticated && recentSearches.length > 0;
+
+  const checkSession = useCallback(async () => {
+    try {
+      const response = await fetch("/api/auth/session", {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to check session");
+      }
+
+      const payload = await response.json();
+      const authenticated = Boolean(payload?.authenticated);
+      isSessionAuthenticatedRef.current = authenticated;
+      setIsSessionAuthenticated(authenticated);
+      return authenticated;
+    } catch {
+      return isSessionAuthenticatedRef.current;
+    }
+  }, []);
+
+  useEffect(() => {
+    void checkSession();
+  }, [isSignedIn, checkSession]);
 
   const parsedAssistedResult = useMemo(() => {
-    return parse(assistedResult || "", {
-      replace: (domNode) => {
-        if (
-          domNode.type === "tag" &&
-          domNode.name === "a" &&
-          domNode.attribs?.href
-        ) {
-          return (
-            <NextLink
-              href={domNode.attribs.href}
-              style={{ textDecoration: "underline" }}
-            >
-              {(domNode.children[0] as any).data}
-            </NextLink>
-          );
-        }
-      },
-    });
+    return parseAssistedResult(assistedResult || "");
   }, [assistedResult]);
 
   async function queryAssistedSearch(formattedQuery: string) {
-    if (!isSignedIn) {
+    if (!(await checkSession())) {
       return {
         hasError: true,
+        requiresSignIn: true,
         result: "Log in to use Assisted search.",
       };
     }
@@ -123,12 +183,14 @@ export default function SearchOptions({
     try {
       return {
         hasError: false,
+        requiresSignIn: false,
         result: await askGemini(formattedQuery),
       };
     } catch (error) {
       console.error("Error querying AI:", error);
       return {
         hasError: true,
+        requiresSignIn: false,
         result: (error as Error).message,
       };
     }
@@ -137,9 +199,11 @@ export default function SearchOptions({
   async function handleAssistedSearch() {
     const formattedQuery =
       inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
-    const { hasError, result } = await queryAssistedSearch(formattedQuery);
+    const { hasError, requiresSignIn, result } =
+      await queryAssistedSearch(formattedQuery);
 
     setAssistedResult(result);
+    setRequiresSignIn(requiresSignIn);
 
     if (hasError) {
       setHasAssistedError(true);
@@ -172,6 +236,7 @@ export default function SearchOptions({
 
     setIsLoading(true);
     setHasAssistedError(false);
+    setRequiresSignIn(false);
 
     if (searchType === "assisted") {
       await handleAssistedSearch();
@@ -183,8 +248,9 @@ export default function SearchOptions({
   };
 
   const handleRecentSearchClick = (search: RecentSearch) => {
-    setSearchType(search.type);
-    setInputValue(search.label);
+    if (search.type === "assisted") {
+      setSelectedAssistedSearch(search);
+    }
   };
 
   return (
@@ -302,7 +368,24 @@ export default function SearchOptions({
             <Alert.Root status="info" variant="subtle" mt="1rem">
               <Alert.Indicator />
               <Alert.Content>
-                <Alert.Title>{assistedResult}</Alert.Title>
+                <Alert.Title>
+                  {requiresSignIn ? (
+                    <SignInModal
+                      triggerLabel="Log in to use AI Assisted Search"
+                      triggerVariant="link"
+                      onSignedIn={() => {
+                        isSessionAuthenticatedRef.current = true;
+                        setIsSessionAuthenticated(true);
+                        setHasAssistedError(false);
+                        setRequiresSignIn(false);
+                        setAssistedResult("");
+                        router.refresh();
+                      }}
+                    />
+                  ) : (
+                    assistedResult
+                  )}
+                </Alert.Title>
               </Alert.Content>
             </Alert.Root>
           )}
@@ -359,21 +442,43 @@ export default function SearchOptions({
           )}
           <Flex justify="center" wrap="wrap" gap="0.5rem">
             {hasRecentSearches
-              ? recentSearches.map((search) => {
-                  const SearchIcon = searchTypeIcon[search.type];
-                  const url = recentSearchUrl(search);
-                  const chip = (
-                    <>
-                      <Icon as={SearchIcon} boxSize="0.9rem" />
-                      {getDisplayLabel(search)}
-                    </>
-                  );
+              ? recentSearches
+                  .slice(0, visibleRecentSearchCount)
+                  .map((search) => {
+                    const SearchIcon = searchTypeIcon[search.type];
+                    const url = recentSearchUrl(search);
+                    const chip = (
+                      <>
+                        <Icon as={SearchIcon} boxSize="0.9rem" />
+                        {getDisplayLabel(search)}
+                      </>
+                    );
 
-                  if (url) {
+                    if (url) {
+                      return (
+                        <Button
+                          key={search.id}
+                          asChild
+                          size="sm"
+                          variant="outline"
+                          borderRadius="full"
+                          borderColor="var(--js-border-muted)"
+                          color="var(--js-text-secondary)"
+                          bg="var(--js-chip-bg)"
+                          _hover={{
+                            borderColor: "var(--js-accent-border)",
+                            color: "var(--js-accent-solid)",
+                          }}
+                        >
+                          <NextLink href={url}>{chip}</NextLink>
+                        </Button>
+                      );
+                    }
+
                     return (
                       <Button
                         key={search.id}
-                        asChild
+                        type="button"
                         size="sm"
                         variant="outline"
                         borderRadius="full"
@@ -384,32 +489,12 @@ export default function SearchOptions({
                           borderColor: "var(--js-accent-border)",
                           color: "var(--js-accent-solid)",
                         }}
+                        onClick={() => handleRecentSearchClick(search)}
                       >
-                        <NextLink href={url}>{chip}</NextLink>
+                        {chip}
                       </Button>
                     );
-                  }
-
-                  return (
-                    <Button
-                      key={search.id}
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      borderRadius="full"
-                      borderColor="var(--js-border-muted)"
-                      color="var(--js-text-secondary)"
-                      bg="var(--js-chip-bg)"
-                      _hover={{
-                        borderColor: "var(--js-accent-border)",
-                        color: "var(--js-accent-solid)",
-                      }}
-                      onClick={() => handleRecentSearchClick(search)}
-                    >
-                      {chip}
-                    </Button>
-                  );
-                })
+                  })
               : quickPassages.map((passage) => (
                   <Button
                     key={passage}
@@ -431,8 +516,89 @@ export default function SearchOptions({
                   </Button>
                 ))}
           </Flex>
+          {hasRecentSearches &&
+            visibleRecentSearchCount < recentSearches.length && (
+              <Button
+                type="button"
+                variant="plain"
+                size="xs"
+                height="auto"
+                minWidth="auto"
+                p="0.2rem"
+                color="var(--js-text-secondary)"
+                fontWeight="500"
+                textDecoration="underline"
+                textUnderlineOffset="3px"
+                _hover={{ color: "var(--js-text-primary)" }}
+                _focusVisible={{
+                  outline: "2px solid",
+                  outlineColor: "var(--js-accent-solid)",
+                  outlineOffset: "2px",
+                }}
+                onClick={() =>
+                  setVisibleRecentSearchCount((currentCount) =>
+                    Math.min(
+                      currentCount + RECENT_SEARCH_BATCH_SIZE,
+                      recentSearches.length,
+                    ),
+                  )
+                }
+              >
+                Load more
+              </Button>
+            )}
         </Stack>
       )}
+
+      <DialogRoot
+        open={Boolean(selectedAssistedSearch)}
+        size={{ base: "full", md: "lg" }}
+        onOpenChange={(event) => {
+          if (!event.open) setSelectedAssistedSearch(null);
+        }}
+      >
+        <DialogContent
+          bg="var(--js-bg-surface)"
+          color="var(--js-text-primary)"
+          maxH={{ base: "100dvh", md: "80dvh" }}
+        >
+          <DialogHeader
+            pr="3rem"
+            borderBottom="1px solid"
+            borderColor="var(--js-border-muted)"
+          >
+            <DialogTitle fontFamily="serif" fontSize="xl" lineHeight="1.3">
+              {selectedAssistedSearch?.label}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogBody
+            overflowY="auto"
+            py="1.25rem"
+            css={{
+              "& p": { marginBottom: "0.9rem", lineHeight: "1.7" },
+              "& p:last-child": { marginBottom: 0 },
+              "& h3": {
+                fontSize: "1.15rem",
+                fontWeight: "600",
+                marginBottom: "0.6rem",
+                marginTop: "1rem",
+              },
+              "& h4": {
+                fontSize: "1rem",
+                fontWeight: "600",
+                marginBottom: "0.5rem",
+                marginTop: "0.85rem",
+              },
+              "& a": { color: "var(--js-accent-solid)" },
+            }}
+          >
+            {selectedAssistedSearch?.result
+              ? parseAssistedResult(selectedAssistedSearch.result)
+              : "No saved response is available for this search."}
+          </DialogBody>
+          <DialogCloseTrigger />
+        </DialogContent>
+      </DialogRoot>
     </Stack>
   );
 }

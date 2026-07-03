@@ -9,9 +9,15 @@ const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
 type SignInModalProps = {
   onSignedIn?: () => void;
+  triggerLabel?: string;
+  triggerVariant?: "nav" | "link";
 };
 
-export default function SignInModal({ onSignedIn }: SignInModalProps) {
+export default function SignInModal({
+  onSignedIn,
+  triggerLabel = "Log in",
+  triggerVariant = "nav",
+}: SignInModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +28,7 @@ export default function SignInModal({ onSignedIn }: SignInModalProps) {
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     setError(null);
     setSuccessMessage(null);
 
@@ -74,11 +81,24 @@ export default function SignInModal({ onSignedIn }: SignInModalProps) {
   return (
     <>
       <Button
+        type="button"
         variant="ghost"
         onClick={() => setIsOpen(true)}
         disabled={!SITE_KEY}
+        {...(triggerVariant === "link"
+          ? {
+              height: "auto",
+              minWidth: 0,
+              padding: 0,
+              color: "inherit",
+              fontWeight: "inherit",
+              textDecoration: "underline",
+              textUnderlineOffset: "2px",
+              whiteSpace: "normal",
+            }
+          : {})}
       >
-        Log in
+        {triggerLabel}
       </Button>
 
       {isOpen ? (
