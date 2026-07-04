@@ -12,7 +12,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "JustScripture",
     description: "Delight in God's word without the distractions",
-    url: "/",
     siteName: "JustScripture",
     type: "website",
     images: [

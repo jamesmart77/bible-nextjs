@@ -54,16 +54,14 @@ export default async function Home() {
                 color="var(--js-text-primary)"
                 m={0}
               >
-                {session ? "Welcome back." : "Draw near to the Lord"}
+                {session ? "Welcome back" : "Draw near to the Lord"}
               </Heading>
               <Text
                 maxW="32rem"
                 fontSize={{ base: "sm", md: "md" }}
                 color="var(--js-text-secondary)"
               >
-                {session
-                  ? "Resume delighting in God's word."
-                  : "A quiet, distraction-free way to read and search Scripture."}
+                Read, study, and delight in the Word of God
               </Text>
             </Stack>
             <Box width="100%" maxW="42rem">
