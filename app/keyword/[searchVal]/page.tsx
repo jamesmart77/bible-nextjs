@@ -1,7 +1,10 @@
+import KeywordActionsBar from "@/app/components/keyword/KeywordActionsBar";
 import KeywordHeading from "@/app/components/keyword/KeywordHeading";
 import ResultsPagination from "@/app/components/keyword/ResultsPagination";
 import ScrollToTop from "@/app/components/keyword/ScrollToTop";
 import { getKeywordResults } from "@/lib/esvApi";
+import { getServerSession } from "@/lib/session";
+import { getUserSearchHistory } from "@/supabase/utils/user";
 import {
   Container,
   Flex,
@@ -28,14 +31,20 @@ export default async function KeywordPage({
   params,
   searchParams,
 }: ParamProps) {
-  const { searchVal } = await params;
-  const searchParamaters = await searchParams;
+  const [{ searchVal }, searchParamaters, session] = await Promise.all([
+    params,
+    searchParams,
+    getServerSession(),
+  ]);
 
   const isExact = searchParamaters?.isExact === "true";
   const page = parseInt(searchParamaters?.page || "1");
 
   const searchQuery = isExact ? `"${searchVal}"` : searchVal;
-  const searchHits = await getKeywordResults(searchQuery);
+  const [searchHits, searchHistory] = await Promise.all([
+    getKeywordResults(searchQuery),
+    session ? getUserSearchHistory(session.id) : Promise.resolve([]),
+  ]);
 
   const buildChapterUrl = (reference: string) => {
     const [bookAndChapter] = reference.split(":");
@@ -55,7 +64,7 @@ export default async function KeywordPage({
               <Icon mr={1} mt={0.5}>
                 <RiSearchLine />
               </Icon>
-              Keyword seach
+              Keyword search
             </Flex>
           </Heading>
           <KeywordHeading
@@ -119,6 +128,10 @@ export default async function KeywordPage({
           ) : (
             <Text>No results found. Refine your search and try again.</Text>
           )}
+          <KeywordActionsBar
+            userSession={session}
+            searchHistory={searchHistory}
+          />
         </Container>
       </Fade>
     </main>

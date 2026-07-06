@@ -89,51 +89,49 @@ export default function AudioControlPanel({
     if (!audio) return;
 
     audio.playbackRate = speed;
-  }, [speed]);
+  }, [audioSrc, open, speed]);
+
+  useEffect(() => {
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+
+    if (!open) {
+      audioRef.current?.pause();
+    }
+  }, [audioSrc, open]);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !open || !audioSrc) return;
-
-    audio.load();
-    setCurrentTime(0);
-    setDuration(0);
 
     if (!autoPlayOnOpen && !shouldResumeAudioPlayback()) return;
 
     audio
       .play()
       .then(() => {
-        setIsPlaying(true);
         sessionStorage.removeItem(AUDIO_AUTOPLAY_KEY);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Unable to autoplay passage audio:", error);
         setIsPlaying(false);
         sessionStorage.removeItem(AUDIO_AUTOPLAY_KEY);
       });
   }, [audioSrc, autoPlayOnOpen, open]);
 
-  useEffect(() => {
-    if (open) return;
-
-    audioRef.current?.pause();
-    setIsPlaying(false);
-  }, [open]);
-
   const togglePlayback = async () => {
     const audio = audioRef.current;
     if (!audio || !audioSrc) return;
 
-    if (isPlaying) {
+    if (!audio.paused) {
       audio.pause();
-      setIsPlaying(false);
       return;
     }
 
     try {
       await audio.play();
-      setIsPlaying(true);
-    } catch {
+    } catch (error) {
+      console.error("Unable to play passage audio:", error);
       setIsPlaying(false);
     }
   };
@@ -196,18 +194,23 @@ export default function AudioControlPanel({
           px={{ base: 4, md: 6 }}
           py={{ base: 4, md: 5 }}
         >
-          <audio
-            ref={audioRef}
-            preload="metadata"
-            src={audioSrc ?? undefined}
-            onEnded={handleEnded}
-            onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
-            onPause={() => setIsPlaying(false)}
-            onPlay={() => setIsPlaying(true)}
-            onTimeUpdate={(event) =>
-              setCurrentTime(event.currentTarget.currentTime)
-            }
-          />
+          {open && audioSrc && (
+            <audio
+              key={audioSrc}
+              ref={audioRef}
+              preload="auto"
+              src={audioSrc}
+              onEnded={handleEnded}
+              onLoadedMetadata={(event) =>
+                setDuration(event.currentTarget.duration)
+              }
+              onPause={() => setIsPlaying(false)}
+              onPlaying={() => setIsPlaying(true)}
+              onTimeUpdate={(event) =>
+                setCurrentTime(event.currentTarget.currentTime)
+              }
+            />
+          )}
 
           <Flex align="center" justify="space-between" gap={3} mb={3}>
             <Flex align="center" gap={2} minW={0}>
