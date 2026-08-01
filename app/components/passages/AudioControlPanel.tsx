@@ -57,6 +57,10 @@ export function shouldResumeAudioPlayback() {
   return sessionStorage.getItem(AUDIO_AUTOPLAY_KEY) === "true";
 }
 
+function clearAudioAutoplayPreference() {
+  sessionStorage.removeItem(AUDIO_AUTOPLAY_KEY);
+}
+
 export default function AudioControlPanel({
   open,
   passageRef,
@@ -68,6 +72,7 @@ export default function AudioControlPanel({
   onClose,
 }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const continuousPlayRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isSpeedPickerOpen, setIsSpeedPickerOpen] = useState(false);
@@ -79,9 +84,11 @@ export default function AudioControlPanel({
   const sliderValue = Math.min(currentTime, sliderMax);
 
   useEffect(() => {
-    setContinuousPlay(
-      sessionStorage.getItem(AUDIO_CONTINUOUS_KEY) === "true"
-    );
+    const storedContinuousPlay =
+      sessionStorage.getItem(AUDIO_CONTINUOUS_KEY) === "true";
+
+    continuousPlayRef.current = storedContinuousPlay;
+    setContinuousPlay(storedContinuousPlay);
   }, []);
 
   useEffect(() => {
@@ -110,12 +117,16 @@ export default function AudioControlPanel({
     audio
       .play()
       .then(() => {
-        sessionStorage.removeItem(AUDIO_AUTOPLAY_KEY);
+        // Keep the resume marker for the entire continuous-play session. This
+        // lets playback survive a component remount (including book changes).
+        if (!continuousPlayRef.current) {
+          clearAudioAutoplayPreference();
+        }
       })
       .catch((error) => {
         console.error("Unable to autoplay passage audio:", error);
         setIsPlaying(false);
-        sessionStorage.removeItem(AUDIO_AUTOPLAY_KEY);
+        clearAudioAutoplayPreference();
       });
   }, [audioSrc, autoPlayOnOpen, open]);
 
@@ -124,11 +135,16 @@ export default function AudioControlPanel({
     if (!audio || !audioSrc) return;
 
     if (!audio.paused) {
+      clearAudioAutoplayPreference();
       audio.pause();
       return;
     }
 
     try {
+      if (continuousPlayRef.current) {
+        setAudioAutoplayPreference(true);
+      }
+
       await audio.play();
     } catch (error) {
       console.error("Unable to play passage audio:", error);
@@ -147,7 +163,7 @@ export default function AudioControlPanel({
   const goToChapter = async (chapter: string | null) => {
     if (!chapter) return;
 
-    setAudioAutoplayPreference(continuousPlay);
+    setAudioAutoplayPreference(continuousPlayRef.current);
     setIsNavigating(true);
     await navigateToChapter(chapter);
   };
@@ -155,13 +171,16 @@ export default function AudioControlPanel({
   const handleEnded = async () => {
     setIsPlaying(false);
 
-    if (!continuousPlay || !nextChapter) return;
+    if (!continuousPlayRef.current || !nextChapter) {
+      clearAudioAutoplayPreference();
+      return;
+    }
 
     await goToChapter(nextChapter);
   };
 
   const closePanel = () => {
-    sessionStorage.removeItem(AUDIO_AUTOPLAY_KEY);
+    clearAudioAutoplayPreference();
     audioRef.current?.pause();
     setIsPlaying(false);
     onClose();
@@ -196,7 +215,6 @@ export default function AudioControlPanel({
         >
           {open && audioSrc && (
             <audio
-              key={audioSrc}
               ref={audioRef}
               preload="auto"
               src={audioSrc}
@@ -370,11 +388,18 @@ export default function AudioControlPanel({
               <Switch.Root
                 checked={continuousPlay}
                 onCheckedChange={(event) => {
+                  continuousPlayRef.current = event.checked;
                   setContinuousPlay(event.checked);
                   sessionStorage.setItem(
                     AUDIO_CONTINUOUS_KEY,
                     String(event.checked)
                   );
+
+                  if (!event.checked) {
+                    clearAudioAutoplayPreference();
+                  } else if (!audioRef.current?.paused) {
+                    setAudioAutoplayPreference(true);
+                  }
                 }}
               >
                 <Switch.HiddenInput />
