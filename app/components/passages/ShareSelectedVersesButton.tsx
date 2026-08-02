@@ -18,8 +18,6 @@ export default function ShareSelectedVersesButton({
 
   if (!isVisible) return null;
 
-  console.log({ isMobile });
-
   return (
     <Box
       position="fixed"

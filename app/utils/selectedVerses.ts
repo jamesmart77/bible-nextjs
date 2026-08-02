@@ -32,6 +32,5 @@ export const formatSelectedVersesForShare = ({
 }: ShareTextOptions) =>
   [
     selectedVerses.map((verse) => verse.text).join(" "),
-    `\n${book} ${chapter} | JustScripture (ESV)`,
-    `Read the full chapter: https://www.justscripture.app/passages/${book}/${chapter}`,
+    `\n${book} ${chapter} | https://www.justscripture.app/passages/${book}/${chapter}`,
   ].join("\n");
