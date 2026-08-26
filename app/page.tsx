@@ -14,6 +14,9 @@ import { mapSearchHistoryForHome } from "./components/search/searchHistoryDispla
 import { getServerSession } from "@/lib/session";
 import { getUserSearchHistory } from "@/supabase/utils/user";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Home() {
   const session = await getServerSession();
   const searchHistory = session ? await getUserSearchHistory(session.id) : [];

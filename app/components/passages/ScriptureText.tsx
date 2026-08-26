@@ -73,7 +73,6 @@ export default function ScriptureText({
     if (navigator.share) {
       navigator
         .share({
-          title: `JustScripture: ${book} ${chapter}`,
           text: verseText,
         })
         .catch(() => {

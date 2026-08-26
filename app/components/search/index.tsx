@@ -42,6 +42,7 @@ import {
   type RecentSearch,
   type SearchType,
 } from "./searchHistoryDisplay";
+import { AUTH_SESSION_CHANGED_EVENT } from "@/lib/auth-events";
 
 type Props = {
   isSignedIn: boolean;
@@ -127,6 +128,8 @@ export default function SearchOptions({
   const [isSessionAuthenticated, setIsSessionAuthenticated] =
     useState(isSignedIn);
   const isSessionAuthenticatedRef = useRef(isSignedIn);
+  const [currentRecentSearches, setCurrentRecentSearches] =
+    useState(recentSearches);
   const [searchType, setSearchType] = useState<SearchType>("passage");
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -140,11 +143,24 @@ export default function SearchOptions({
   );
 
   const hasRecentSearches =
-    isSessionAuthenticated && recentSearches.length > 0;
+    isSessionAuthenticated && currentRecentSearches.length > 0;
+
+  useEffect(() => {
+    isSessionAuthenticatedRef.current = isSignedIn;
+    setIsSessionAuthenticated(isSignedIn);
+  }, [isSignedIn]);
+
+  useEffect(() => {
+    setCurrentRecentSearches(recentSearches);
+  }, [recentSearches]);
 
   const checkSession = useCallback(async () => {
     try {
-      const response = await fetch("/api/auth/session", {
+      const sessionUrl =
+        variant === "home"
+          ? "/api/auth/session?includeRecentSearches=1"
+          : "/api/auth/session";
+      const response = await fetch(sessionUrl, {
         cache: "no-store",
         credentials: "same-origin",
       });
@@ -157,15 +173,33 @@ export default function SearchOptions({
       const authenticated = Boolean(payload?.authenticated);
       isSessionAuthenticatedRef.current = authenticated;
       setIsSessionAuthenticated(authenticated);
+
+      if (variant === "home") {
+        setCurrentRecentSearches(
+          authenticated && Array.isArray(payload?.recentSearches)
+            ? (payload.recentSearches as RecentSearch[])
+            : [],
+        );
+      }
+
       return authenticated;
     } catch {
       return isSessionAuthenticatedRef.current;
     }
-  }, []);
+  }, [variant]);
 
   useEffect(() => {
-    void checkSession();
-  }, [isSignedIn, checkSession]);
+    const refreshSession = () => void checkSession();
+
+    refreshSession();
+    window.addEventListener(AUTH_SESSION_CHANGED_EVENT, refreshSession);
+    window.addEventListener("pageshow", refreshSession);
+
+    return () => {
+      window.removeEventListener(AUTH_SESSION_CHANGED_EVENT, refreshSession);
+      window.removeEventListener("pageshow", refreshSession);
+    };
+  }, [checkSession]);
 
   const parsedAssistedResult = useMemo(() => {
     return parseAssistedResult(assistedResult || "");
@@ -442,7 +476,7 @@ export default function SearchOptions({
           )}
           <Flex justify="center" wrap="wrap" gap="0.5rem">
             {hasRecentSearches
-              ? recentSearches
+              ? currentRecentSearches
                   .slice(0, visibleRecentSearchCount)
                   .map((search) => {
                     const SearchIcon = searchTypeIcon[search.type];
@@ -517,7 +551,7 @@ export default function SearchOptions({
                 ))}
           </Flex>
           {hasRecentSearches &&
-            visibleRecentSearchCount < recentSearches.length && (
+            visibleRecentSearchCount < currentRecentSearches.length && (
               <Button
                 type="button"
                 variant="plain"
@@ -539,7 +573,7 @@ export default function SearchOptions({
                   setVisibleRecentSearchCount((currentCount) =>
                     Math.min(
                       currentCount + RECENT_SEARCH_BATCH_SIZE,
-                      recentSearches.length,
+                      currentRecentSearches.length,
                     ),
                   )
                 }

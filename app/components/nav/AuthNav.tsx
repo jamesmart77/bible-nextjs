@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import NextLink from "next/link";
 import { IconButton, Link as ChakraLink } from "@chakra-ui/react";
 import { RiAccountCircleLine } from "react-icons/ri";
 import SignInModal from "@/app/components/nav/SignInModal";
+import { AUTH_SESSION_CHANGED_EVENT } from "@/lib/auth-events";
 
 type AuthNavProps = {
   initialIsSignedIn: boolean;
@@ -12,34 +13,41 @@ type AuthNavProps = {
 
 export default function AuthNav({ initialIsSignedIn }: AuthNavProps) {
   const [isSignedIn, setIsSignedIn] = useState(initialIsSignedIn);
+  const initialIsSignedInRef = useRef(initialIsSignedIn);
 
   useEffect(() => {
-    let ignore = false;
+    initialIsSignedInRef.current = initialIsSignedIn;
+    setIsSignedIn(initialIsSignedIn);
+  }, [initialIsSignedIn]);
 
-    async function checkSession() {
-      try {
-        const response = await fetch("/api/auth/session", {
-          cache: "no-store",
-          credentials: "same-origin",
-        });
-        const payload = await response.json();
+  const checkSession = useCallback(async () => {
+    try {
+      const response = await fetch("/api/auth/session", {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
 
-        if (!ignore) {
-          setIsSignedIn(Boolean(payload?.authenticated));
-        }
-      } catch {
-        if (!ignore) {
-          setIsSignedIn(initialIsSignedIn);
-        }
-      }
+      if (!response.ok) return;
+
+      const payload = await response.json();
+      setIsSignedIn(Boolean(payload?.authenticated));
+    } catch {
+      setIsSignedIn(initialIsSignedInRef.current);
     }
+  }, []);
 
-    checkSession();
+  useEffect(() => {
+    const refreshSession = () => void checkSession();
+
+    refreshSession();
+    window.addEventListener(AUTH_SESSION_CHANGED_EVENT, refreshSession);
+    window.addEventListener("pageshow", refreshSession);
 
     return () => {
-      ignore = true;
+      window.removeEventListener(AUTH_SESSION_CHANGED_EVENT, refreshSession);
+      window.removeEventListener("pageshow", refreshSession);
     };
-  }, [initialIsSignedIn]);
+  }, [checkSession]);
 
   if (isSignedIn) {
     return (

@@ -21,6 +21,7 @@ export default async function Header() {
       >
         <NextLink
           href="/"
+          prefetch={false}
           style={{
             textDecoration: "none",
             alignItems: "center",

@@ -4,6 +4,7 @@ import { useRef, useState, type SubmitEventHandler } from "react";
 import { useRouter } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Button, Input, Portal, Text } from "@chakra-ui/react";
+import { notifyAuthSessionChanged } from "@/lib/auth-events";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
@@ -67,10 +68,11 @@ export default function SignInModal({
 
       setSuccessMessage("Sign in successful!");
       setEmail("");
+      notifyAuthSessionChanged();
+      router.refresh();
       setTimeout(() => {
         setIsOpen(false);
         onSignedIn?.();
-        router.refresh();
       }, 1000);
     } catch (err: any) {
       setLoading(false);
