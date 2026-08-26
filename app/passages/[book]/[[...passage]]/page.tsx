@@ -115,6 +115,8 @@ export default async function Passage({ params }: ParamProps) {
             passageText={passageText}
             book={book}
             chapter={chapter}
+            reference={canonical}
+            passageUrl={passageUrl}
             shouldShowFullChapterLink={!!verses}
           />
           <ActionsBar 

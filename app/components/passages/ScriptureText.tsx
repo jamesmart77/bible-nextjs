@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Container,
@@ -12,6 +12,11 @@ import Link from "next/link";
 import parse, { Element, HTMLReactParserOptions } from "html-react-parser";
 import { toaster, Toaster } from "@/app/components/chakra-snippets/toaster";
 import { replaceEsvHtmlNode } from "@/app/utils/htmlParser";
+import {
+  cachePassage,
+  createCachedVerseKey,
+  normalizeBookKey,
+} from "@/lib/offline/passageCache";
 import {
   formatSelectedVersesForShare,
   type SelectedVerse,
@@ -31,6 +36,8 @@ type Props = {
   passageText: string;
   book: string;
   chapter: string;
+  reference: string;
+  passageUrl: string;
   shouldShowFullChapterLink: boolean;
 };
 
@@ -38,6 +45,8 @@ export default function ScriptureText({
   passageText,
   book,
   chapter,
+  reference,
+  passageUrl,
   shouldShowFullChapterLink,
 }: Props) {
   const [selectedVerses, setSelectedVerses] = useState<SelectedVerse[]>([]);
@@ -46,6 +55,27 @@ export default function ScriptureText({
     () => getPassageVerseTextByNumber(passageText),
     [passageText]
   );
+
+  useEffect(() => {
+    const verses = [...verseTextByNumber].map(([verseNum, text]) => ({
+      key: createCachedVerseKey(book, chapter, verseNum),
+      verseNum,
+      text,
+    }));
+
+    if (verses.length === 0) return;
+
+    void cachePassage({
+      url: passageUrl,
+      book,
+      bookKey: normalizeBookKey(book),
+      chapter,
+      reference,
+      verses,
+    }).catch((error) => {
+      console.warn("Unable to cache passage for offline reading:", error);
+    });
+  }, [book, chapter, passageUrl, reference, verseTextByNumber]);
 
   const isVerseSelected = (verseNum: string) =>
     selectedVerses.some((verse) => verse.verseNum === verseNum);
