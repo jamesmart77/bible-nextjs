@@ -2,7 +2,7 @@ import { Flex, Heading } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { getServerSession } from "@/lib/session";
 import AuthNav from "@/app/components/nav/AuthNav";
-import { ColorModeButton } from "@/app/theme/ColorMode";
+import SettingsMenu from "@/app/components/nav/SettingsMenu";
 
 export default async function Header() {
   const session = await getServerSession();
@@ -40,7 +40,7 @@ export default async function Header() {
           </Heading>
         </NextLink>
         <Flex alignItems="center" gap="0.5rem">
-          <ColorModeButton />
+          <SettingsMenu />
           <AuthNav initialIsSignedIn={!!session} />
         </Flex>
       </Flex>

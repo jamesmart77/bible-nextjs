@@ -17,6 +17,18 @@
   --js-nav-bg: rgba(250, 247, 240, 0.86);
 }
 
+html {
+  font-size: 100%;
+}
+
+html[data-text-size="large"] {
+  font-size: 112.5%;
+}
+
+html[data-text-size="extra-large"] {
+  font-size: 125%;
+}
+
 html.light {
   color-scheme: light;
   background-color: #FAF7F0;

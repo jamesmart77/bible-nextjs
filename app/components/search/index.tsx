@@ -69,6 +69,7 @@ const searchTypePlaceholder: Record<Exclude<SearchType, "passage">, string> = {
 
 const quickPassages = ["Genesis 1", "Psalm 23", "John 1", "Romans 8"];
 const RECENT_SEARCH_BATCH_SIZE = 4;
+const EMPTY_RECENT_SEARCHES: RecentSearch[] = [];
 
 function buildSearchUrl(type: SearchType, query: string) {
   const trimmedQuery = query
@@ -121,7 +122,7 @@ function parseAssistedResult(result: string) {
 
 export default function SearchOptions({
   isSignedIn,
-  recentSearches = [],
+  recentSearches = EMPTY_RECENT_SEARCHES,
   variant = "compact",
 }: Props) {
   const router = useRouter();
