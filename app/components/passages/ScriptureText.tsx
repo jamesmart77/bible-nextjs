@@ -24,6 +24,8 @@ import {
 } from "@/app/utils/selectedVerses";
 import {
   getPassageVerseTextByNumber,
+  getPassageVerseGroups,
+  type VerseNodeGroup,
   groupParagraphNodesByVerse,
   hasVerseNumber,
   serializeHtmlNode,
@@ -31,6 +33,8 @@ import {
 import Copyright from "./Copyright";
 import ShareSelectedVersesButton from "./ShareSelectedVersesButton";
 import Verse from "./Verse";
+import CrossReferenceDrawer from "./CrossReferenceDrawer";
+import { getCrossReferences } from "@/app/utils/crossReferences";
 
 type Props = {
   passageText: string;
@@ -49,11 +53,18 @@ export default function ScriptureText({
   passageUrl,
   shouldShowFullChapterLink,
 }: Props) {
+  const [crossReferenceVerse, setCrossReferenceVerse] =
+    useState<VerseNodeGroup | null>(null);
+  const verseGroups = useMemo(
+    () => getPassageVerseGroups(passageText),
+    [passageText],
+  );
+  const renderedFragments = new Map<string, number>();
   const [selectedVerses, setSelectedVerses] = useState<SelectedVerse[]>([]);
   const [hoveredVerseNum, setHoveredVerseNum] = useState<string | null>(null);
   const verseTextByNumber = useMemo(
     () => getPassageVerseTextByNumber(passageText),
-    [passageText]
+    [passageText],
   );
 
   useEffect(() => {
@@ -120,22 +131,36 @@ export default function ScriptureText({
 
     return (
       <Box as="span" key={index}>
-        {verses.map((verse, verseIndex) => (
-          <Verse
-            key={`${verse.verseNum}-${verseIndex}`}
-            verse={verse}
-            isSelected={isVerseSelected(verse.verseNum)}
-            isHovered={hoveredVerseNum === verse.verseNum}
-            onClick={() =>
-              handleVerseClick({
-                verseNum: verse.verseNum,
-                text: verseTextByNumber.get(verse.verseNum) ?? verse.text,
-              })
-            }
-            onMouseEnter={() => setHoveredVerseNum(verse.verseNum)}
-            onMouseLeave={() => setHoveredVerseNum(null)}
-          />
-        ))}
+        {verses.map((verse, verseIndex) => {
+          const fragments = verseGroups.get(verse.verseNum) ?? [verse];
+          const rendered = (renderedFragments.get(verse.verseNum) ?? 0) + 1;
+          renderedFragments.set(verse.verseNum, rendered);
+          const nodes = fragments.flatMap((fragment) => fragment.nodes);
+          const showCrossReference =
+            rendered === fragments.length &&
+            getCrossReferences(nodes).length > 0;
+          return (
+            <Verse
+              key={`${verse.verseNum}-${verseIndex}`}
+              verse={verse}
+              onCrossReferenceClick={
+                showCrossReference
+                  ? () => setCrossReferenceVerse({ ...verse, nodes })
+                  : undefined
+              }
+              isSelected={isVerseSelected(verse.verseNum)}
+              isHovered={hoveredVerseNum === verse.verseNum}
+              onClick={() =>
+                handleVerseClick({
+                  verseNum: verse.verseNum,
+                  text: verseTextByNumber.get(verse.verseNum) ?? verse.text,
+                })
+              }
+              onMouseEnter={() => setHoveredVerseNum(verse.verseNum)}
+              onMouseLeave={() => setHoveredVerseNum(null)}
+            />
+          );
+        })}
       </Box>
     );
   };
@@ -236,6 +261,14 @@ export default function ScriptureText({
         isVisible={selectedVerses.length > 0}
         onClick={copySelectionsToClipboard}
       />
+      {crossReferenceVerse && (
+        <CrossReferenceDrawer
+          key={`${passageUrl}-${crossReferenceVerse.verseNum}`}
+          verse={crossReferenceVerse}
+          reference={`${book.replace(/^(\d)(?=[A-Za-z])/, "$1 ")} ${chapter}:${crossReferenceVerse.verseNum}`}
+          onClose={() => setCrossReferenceVerse(null)}
+        />
+      )}
       <Copyright />
     </Container>
   );

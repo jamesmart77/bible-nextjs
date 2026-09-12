@@ -40,7 +40,9 @@ export const getVerseNumber = (node: Element) => {
       ? textNode.data.replace(/\u00a0/g, "").trim()
       : "";
 
-  return verseText.includes(":") ? verseText.split(":").at(-1) || "" : verseText;
+  return verseText.includes(":")
+    ? verseText.split(":").at(-1) || ""
+    : verseText;
 };
 
 const getVerseNumberFromParagraphId = (node: Element) => {
@@ -73,36 +75,19 @@ const findVerseNumberFromDescendantId = (node: Element): string => {
 export const hasVerseNumber = (node: Element) =>
   !!findVerseNumberNode(node) || !!findVerseNumberFromDescendantId(node);
 
-const disableNestedFootnoteLinks = (node: ChildNode) => {
-  if (
-    node instanceof Element &&
-    node.name === "sup" &&
-    node.children.length > 0
-  ) {
-    node.children.forEach((child) => {
-      if (child instanceof Element && child.name === "a") {
-        child.attribs = { ...child.attribs, href: "#" };
-      }
-    });
-  }
-};
-
-const getNodeText = (node: ChildNode) => {
+const getNodeText = (node: ChildNode): string => {
   if (node.type === "text") return node.data;
-
-  if (node instanceof Element) {
-    return node.children
-      .map((child) => ("data" in child ? child.data : ""))
-      .join("");
-  }
-
-  return "";
+  if (!(node instanceof Element) || node.name === "sup") return "";
+  if (node.name === "br") return " ";
+  return node.children.map(getNodeText).join("");
 };
 
 const getVerseText = (nodes: ChildNode[]) =>
   nodes.map(getNodeText).join("").replace(/\s+/g, " ").trim();
 
-export const groupParagraphNodesByVerse = (pNode: Element): VerseNodeGroup[] => {
+export const groupParagraphNodesByVerse = (
+  pNode: Element,
+): VerseNodeGroup[] => {
   const verses: VerseNodeGroup[] = [];
   let currentVerseNum = "";
   let currentNodes: ChildNode[] = [];
@@ -110,8 +95,6 @@ export const groupParagraphNodesByVerse = (pNode: Element): VerseNodeGroup[] => 
 
   const paragraphVerseNum = getVerseNumberFromParagraphId(pNode);
   if (!findVerseNumberNode(pNode) && paragraphVerseNum) {
-    pNode.children.forEach(disableNestedFootnoteLinks);
-
     return [
       {
         verseNum: paragraphVerseNum,
@@ -138,7 +121,6 @@ export const groupParagraphNodesByVerse = (pNode: Element): VerseNodeGroup[] => 
       currentVerseNum = getVerseNumber(verseNumberNode);
       currentNodes = [child];
     } else if (!collecting && childVerseNum) {
-      disableNestedFootnoteLinks(child);
       collecting = true;
       currentVerseNum = childVerseNum;
       currentNodes = [child];
@@ -150,13 +132,11 @@ export const groupParagraphNodesByVerse = (pNode: Element): VerseNodeGroup[] => 
           text: getVerseText(currentNodes),
         });
 
-        disableNestedFootnoteLinks(child);
         currentVerseNum = childVerseNum;
         currentNodes = [child];
         return;
       }
 
-      disableNestedFootnoteLinks(child);
       currentNodes.push(child);
     }
   });
@@ -187,7 +167,7 @@ export const getPassageVerseTextByNumber = (passageHtml: string) => {
   const paragraphs: Element[] = [];
 
   htmlToDOM(passageHtml).forEach((node) =>
-    collectParagraphs(node as AnyNode, paragraphs)
+    collectParagraphs(node as AnyNode, paragraphs),
   );
 
   paragraphs.forEach((paragraph) => {
@@ -197,10 +177,25 @@ export const getPassageVerseTextByNumber = (passageHtml: string) => {
       const existingText = verseTextByNumber.get(verse.verseNum);
       verseTextByNumber.set(
         verse.verseNum,
-        [existingText, verse.text].filter(Boolean).join(" ")
+        [existingText, verse.text].filter(Boolean).join(" "),
       );
     });
   });
 
   return verseTextByNumber;
+};
+
+export const getPassageVerseGroups = (passageHtml: string) => {
+  const paragraphs: Element[] = [];
+  const groups = new Map<string, VerseNodeGroup[]>();
+  htmlToDOM(passageHtml).forEach((node) => collectParagraphs(node, paragraphs));
+  paragraphs.filter(hasVerseNumber).forEach((paragraph) => {
+    groupParagraphNodesByVerse(paragraph).forEach((verse) => {
+      groups.set(verse.verseNum, [
+        ...(groups.get(verse.verseNum) ?? []),
+        verse,
+      ]);
+    });
+  });
+  return groups;
 };
