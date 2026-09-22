@@ -23,6 +23,7 @@ import {
 
 const AUDIO_AUTOPLAY_KEY = "justscripture:audio-autoplay";
 const AUDIO_CONTINUOUS_KEY = "justscripture:audio-continuous";
+const AUDIO_REPEAT_KEY = "justscripture:audio-repeat";
 
 type Props = {
   open: boolean;
@@ -78,17 +79,21 @@ export default function AudioControlPanel({
   const [isSpeedPickerOpen, setIsSpeedPickerOpen] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [continuousPlay, setContinuousPlay] = useState(false);
+  const [repeat, setRepeat] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const sliderMax = Math.max(duration, 0);
   const sliderValue = Math.min(currentTime, sliderMax);
 
   useEffect(() => {
+    const storedRepeat = sessionStorage.getItem(AUDIO_REPEAT_KEY) === "true";
     const storedContinuousPlay =
-      sessionStorage.getItem(AUDIO_CONTINUOUS_KEY) === "true";
+      !storedRepeat && sessionStorage.getItem(AUDIO_CONTINUOUS_KEY) === "true";
 
+    setRepeat(storedRepeat);
     continuousPlayRef.current = storedContinuousPlay;
     setContinuousPlay(storedContinuousPlay);
+    sessionStorage.setItem(AUDIO_CONTINUOUS_KEY, String(storedContinuousPlay));
   }, []);
 
   useEffect(() => {
@@ -218,6 +223,7 @@ export default function AudioControlPanel({
               ref={audioRef}
               preload="auto"
               src={audioSrc}
+              loop={repeat}
               onEnded={handleEnded}
               onLoadedMetadata={(event) =>
                 setDuration(event.currentTarget.duration)
@@ -395,6 +401,11 @@ export default function AudioControlPanel({
                     String(event.checked)
                   );
 
+                  if (event.checked) {
+                    setRepeat(false);
+                    sessionStorage.setItem(AUDIO_REPEAT_KEY, "false");
+                  }
+
                   if (!event.checked) {
                     clearAudioAutoplayPreference();
                   } else if (!audioRef.current?.paused) {
@@ -407,6 +418,27 @@ export default function AudioControlPanel({
                   <Switch.Thumb />
                 </Switch.Control>
                 <Switch.Label fontSize="sm">Continuous play</Switch.Label>
+              </Switch.Root>
+
+              <Switch.Root
+                checked={repeat}
+                onCheckedChange={(event) => {
+                  setRepeat(event.checked);
+                  sessionStorage.setItem(AUDIO_REPEAT_KEY, String(event.checked));
+
+                  if (event.checked) {
+                    continuousPlayRef.current = false;
+                    setContinuousPlay(false);
+                    sessionStorage.setItem(AUDIO_CONTINUOUS_KEY, "false");
+                    clearAudioAutoplayPreference();
+                  }
+                }}
+              >
+                <Switch.HiddenInput />
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+                <Switch.Label fontSize="sm">Repeat</Switch.Label>
               </Switch.Root>
             </Flex>
           </Flex>
