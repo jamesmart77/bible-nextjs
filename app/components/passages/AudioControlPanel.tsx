@@ -9,7 +9,7 @@ import {
   Portal,
   Popover,
   Slider,
-  Switch,
+  SegmentGroup,
   Text,
 } from "@chakra-ui/react";
 import {
@@ -17,7 +17,7 @@ import {
   FaForwardStep,
   FaPause,
   FaPlay,
-  FaVolumeHigh,
+  FaChevronDown,
   FaXmark,
 } from "react-icons/fa6";
 
@@ -35,6 +35,13 @@ type Props = {
   navigateToChapter: (chapter: string | null) => Promise<void>;
   onClose: () => void;
 };
+
+const playbackModes = [
+  { value: "stop", label: "Stop" },
+  { value: "repeat", label: "Repeat" },
+  { value: "continuous", label: "Keep playing" },
+] as const;
+type PlaybackMode = (typeof playbackModes)[number]["value"];
 
 const playbackSpeeds = [0.75, 1, 1.25, 1.5, 1.75, 2];
 
@@ -78,8 +85,7 @@ export default function AudioControlPanel({
   const [isNavigating, setIsNavigating] = useState(false);
   const [isSpeedPickerOpen, setIsSpeedPickerOpen] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const [continuousPlay, setContinuousPlay] = useState(false);
-  const [repeat, setRepeat] = useState(false);
+  const [playbackMode, setPlaybackMode] = useState<PlaybackMode>("stop");
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const sliderMax = Math.max(duration, 0);
@@ -90,9 +96,8 @@ export default function AudioControlPanel({
     const storedContinuousPlay =
       !storedRepeat && sessionStorage.getItem(AUDIO_CONTINUOUS_KEY) === "true";
 
-    setRepeat(storedRepeat);
     continuousPlayRef.current = storedContinuousPlay;
-    setContinuousPlay(storedContinuousPlay);
+    setPlaybackMode(storedRepeat ? "repeat" : storedContinuousPlay ? "continuous" : "stop");
     sessionStorage.setItem(AUDIO_CONTINUOUS_KEY, String(storedContinuousPlay));
   }, []);
 
@@ -134,6 +139,20 @@ export default function AudioControlPanel({
         clearAudioAutoplayPreference();
       });
   }, [audioSrc, autoPlayOnOpen, open]);
+
+  const changePlaybackMode = (mode: PlaybackMode) => {
+    const continuous = mode === "continuous";
+    setPlaybackMode(mode);
+    continuousPlayRef.current = continuous;
+    sessionStorage.setItem(AUDIO_CONTINUOUS_KEY, String(continuous));
+    sessionStorage.setItem(AUDIO_REPEAT_KEY, String(mode === "repeat"));
+
+    if (continuous && audioRef.current && !audioRef.current.paused) {
+      setAudioAutoplayPreference(true);
+    } else {
+      clearAudioAutoplayPreference();
+    }
+  };
 
   const togglePlayback = async () => {
     const audio = audioRef.current;
@@ -223,7 +242,7 @@ export default function AudioControlPanel({
               ref={audioRef}
               preload="auto"
               src={audioSrc}
-              loop={repeat}
+              loop={playbackMode === "repeat"}
               onEnded={handleEnded}
               onLoadedMetadata={(event) =>
                 setDuration(event.currentTarget.duration)
@@ -237,19 +256,9 @@ export default function AudioControlPanel({
           )}
 
           <Flex align="center" justify="space-between" gap={3} mb={3}>
-            <Flex align="center" gap={2} minW={0}>
-              <Box color="accent.solid" aria-hidden>
-                <FaVolumeHigh />
-              </Box>
-              <Box minW={0}>
-                <Text fontSize="sm" fontWeight="semibold" lineClamp={1}>
-                  {passageRef}
-                </Text>
-                <Text color="text.secondary" fontSize="xs">
-                  ESV scripture audio
-                </Text>
-              </Box>
-            </Flex>
+            <Text fontSize="md" fontWeight="semibold" lineClamp={1} minW={0}>
+              {passageRef}
+            </Text>
 
             <IconButton
               aria-label="Close audio controls"
@@ -272,7 +281,7 @@ export default function AudioControlPanel({
             onValueChange={(event) => seekTo(event.value[0] ?? 0)}
           >
             <Slider.Control>
-              <Slider.Track bg="bg.muted" h="2">
+              <Slider.Track bg="bg.muted" h="1">
                 <Slider.Range bg="accent.solid" />
               </Slider.Track>
               <Slider.Thumb
@@ -292,17 +301,16 @@ export default function AudioControlPanel({
 
           <Flex
             align="center"
-            direction={{ base: "column", md: "row" }}
+            direction="column"
             gap={4}
-            justify="space-between"
             mt={4}
           >
-            <Flex align="center" gap={3}>
+            <Flex align="center" gap={5}>
               <IconButton
                 aria-label="Play previous chapter"
                 disabled={!previousChapter || isNavigating}
                 rounded="full"
-                variant="outline"
+                variant="ghost"
                 onClick={() => goToChapter(previousChapter)}
               >
                 <FaBackwardStep />
@@ -313,6 +321,10 @@ export default function AudioControlPanel({
                 disabled={!audioSrc}
                 rounded="full"
                 size="lg"
+                boxSize="14"
+                bg="accent.solid"
+                color="accent.contrast"
+                _hover={{ bg: "accent.hover" }}
                 onClick={togglePlayback}
               >
                 {isPlaying ? <FaPause /> : <FaPlay />}
@@ -322,7 +334,7 @@ export default function AudioControlPanel({
                 aria-label="Play next chapter"
                 disabled={!nextChapter || isNavigating}
                 rounded="full"
-                variant="outline"
+                variant="ghost"
                 onClick={() => goToChapter(nextChapter)}
               >
                 <FaForwardStep />
@@ -331,12 +343,12 @@ export default function AudioControlPanel({
 
             <Flex
               align="center"
+              direction={{ base: "column", md: "row" }}
               gap={{ base: 3, md: 5 }}
               justify="center"
-              wrap="wrap"
+              w="full"
             >
               <Flex align="center" gap={2}>
-                <Text fontSize="sm">Speed</Text>
                 <Popover.Root
                   open={isSpeedPickerOpen}
                   onOpenChange={(event) => setIsSpeedPickerOpen(event.open)}
@@ -344,12 +356,13 @@ export default function AudioControlPanel({
                 >
                   <Popover.Trigger asChild>
                     <Button
-                      aria-label="Select playback speed"
+                      aria-label={`Select playback speed, currently ${speed} times`}
                       size="sm"
                       variant="outline"
                       minW="5.75rem"
                     >
-                      {speed}x
+                      {speed}×
+                      <FaChevronDown aria-hidden />
                     </Button>
                   </Popover.Trigger>
                   <Popover.Positioner zIndex="popover">
@@ -382,7 +395,7 @@ export default function AudioControlPanel({
                               setIsSpeedPickerOpen(false);
                             }}
                           >
-                            {playbackSpeed}x
+                            {playbackSpeed}×
                           </Button>
                         ))}
                       </Flex>
@@ -391,55 +404,51 @@ export default function AudioControlPanel({
                 </Popover.Root>
               </Flex>
 
-              <Switch.Root
-                checked={continuousPlay}
-                onCheckedChange={(event) => {
-                  continuousPlayRef.current = event.checked;
-                  setContinuousPlay(event.checked);
-                  sessionStorage.setItem(
-                    AUDIO_CONTINUOUS_KEY,
-                    String(event.checked)
-                  );
-
-                  if (event.checked) {
-                    setRepeat(false);
-                    sessionStorage.setItem(AUDIO_REPEAT_KEY, "false");
-                  }
-
-                  if (!event.checked) {
-                    clearAudioAutoplayPreference();
-                  } else if (!audioRef.current?.paused) {
-                    setAudioAutoplayPreference(true);
-                  }
-                }}
+              <Flex
+                align={{ base: "stretch", md: "center" }}
+                direction={{ base: "column", md: "row" }}
+                gap={2}
+                w={{ base: "full", md: "auto" }}
               >
-                <Switch.HiddenInput />
-                <Switch.Control>
-                  <Switch.Thumb />
-                </Switch.Control>
-                <Switch.Label fontSize="sm">Continuous play</Switch.Label>
-              </Switch.Root>
-
-              <Switch.Root
-                checked={repeat}
-                onCheckedChange={(event) => {
-                  setRepeat(event.checked);
-                  sessionStorage.setItem(AUDIO_REPEAT_KEY, String(event.checked));
-
-                  if (event.checked) {
-                    continuousPlayRef.current = false;
-                    setContinuousPlay(false);
-                    sessionStorage.setItem(AUDIO_CONTINUOUS_KEY, "false");
-                    clearAudioAutoplayPreference();
-                  }
-                }}
-              >
-                <Switch.HiddenInput />
-                <Switch.Control>
-                  <Switch.Thumb />
-                </Switch.Control>
-                <Switch.Label fontSize="sm">Repeat</Switch.Label>
-              </Switch.Root>
+                <Text fontSize="sm" color="text.secondary" whiteSpace="nowrap">
+                  After this passage
+                </Text>
+                <SegmentGroup.Root
+                  aria-label="After this passage"
+                  value={playbackMode}
+                  onValueChange={({ value }) => {
+                    if (value === "stop" || value === "repeat" || value === "continuous") {
+                      changePlaybackMode(value);
+                    }
+                  }}
+                  bg="transparent"
+                  borderWidth="1px"
+                  borderColor="border.muted"
+                  rounded="lg"
+                  p="0"
+                  w={{ base: "full", md: "auto" }}
+                >
+                  {playbackModes.map(({ value, label }) => (
+                    <SegmentGroup.Item
+                      key={value}
+                      value={value}
+                      flex="1"
+                      justifyContent="center"
+                      minH="11"
+                      px={{ base: 3, md: 4 }}
+                      fontSize="sm"
+                      whiteSpace="nowrap"
+                      cursor="pointer"
+                      rounded="md"
+                      _checked={{ bg: "accent.subtle", color: "text.primary", fontWeight: "semibold" }}
+                      _focusVisible={{ outline: "2px solid", outlineColor: "accent.focus", outlineOffset: "2px" }}
+                    >
+                      <SegmentGroup.ItemText>{label}</SegmentGroup.ItemText>
+                      <SegmentGroup.ItemHiddenInput />
+                    </SegmentGroup.Item>
+                  ))}
+                </SegmentGroup.Root>
+              </Flex>
             </Flex>
           </Flex>
         </Box>
