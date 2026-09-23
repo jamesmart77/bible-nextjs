@@ -45,6 +45,14 @@ type PlaybackMode = (typeof playbackModes)[number]["value"];
 
 const playbackSpeeds = [0.75, 1, 1.25, 1.5, 1.75, 2];
 
+const selectedControlStyles = {
+  bg: { base: "accent.hover", _dark: "accent.solid" },
+  color: "accent.contrast",
+  fontWeight: "bold",
+  boxShadow: "inset 0 0 0 1px currentColor",
+  _hover: { bg: { base: "accent.hover", _dark: "accent.solid" } },
+} as const;
+
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds)) return "0:00";
 
@@ -390,6 +398,8 @@ export default function AudioControlPanel({
                             variant={
                               speed === playbackSpeed ? "solid" : "ghost"
                             }
+                            color="text.secondary"
+                            _pressed={selectedControlStyles}
                             onClick={() => {
                               setSpeed(playbackSpeed);
                               setIsSpeedPickerOpen(false);
@@ -421,7 +431,7 @@ export default function AudioControlPanel({
                       changePlaybackMode(value);
                     }
                   }}
-                  bg="transparent"
+                  bg="bg.muted"
                   borderWidth="1px"
                   borderColor="border.muted"
                   rounded="lg"
@@ -440,7 +450,10 @@ export default function AudioControlPanel({
                       whiteSpace="nowrap"
                       cursor="pointer"
                       rounded="md"
-                      _checked={{ bg: "accent.subtle", color: "text.primary", fontWeight: "semibold" }}
+                      color="text.secondary"
+                      transition="background-color 150ms ease, color 150ms ease"
+                      _hover={{ bg: "accent.subtle" }}
+                      _checked={selectedControlStyles}
                       _focusVisible={{ outline: "2px solid", outlineColor: "accent.focus", outlineOffset: "2px" }}
                     >
                       <SegmentGroup.ItemText>{label}</SegmentGroup.ItemText>
