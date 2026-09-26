@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test:audio": "node --test lib/audio/PlaybackController.test.mjs",
     "postinstall": "npx @chakra-ui/cli typegen app/theme/theme.ts"
   },
   "dependencies": {

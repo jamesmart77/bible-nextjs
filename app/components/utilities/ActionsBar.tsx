@@ -20,9 +20,7 @@ import SearchHistory from "./searchHistory/SearchHistory";
 import Link from "next/link";
 import PopupSearch from "../search/PopupSearch";
 import { SessionData } from "@/lib/constants";
-import AudioControlPanel, {
-  shouldResumeAudioPlayback,
-} from "../passages/AudioControlPanel";
+import { useAudioPlayback } from "../passages/AudioPlaybackProvider";
 import CommentaryDrawer from "../passages/CommentaryDrawer";
 
 type Props = {
@@ -55,8 +53,7 @@ export default function ActionsBar(props: Props) {
   } = props;
 
   const [showSearchDialog, setShowSearchDialog] = useState(false);
-  const [showAudioPanel, setShowAudioPanel] = useState(false);
-  const [shouldAutoPlayAudio, setShouldAutoPlayAudio] = useState(false);
+  const { open: showAudioPanel, openAudio } = useAudioPlayback();
   const [isPrevLoading, setIsPrevLoading] = useState(false);
   const [isNextLoading, setIsNextLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
@@ -86,23 +83,12 @@ export default function ActionsBar(props: Props) {
   }, [showAudioPanel]);
 
   useEffect(() => {
-    if (!shouldResumeAudioPlayback()) return;
-
-    setShouldAutoPlayAudio(true);
-    setShowAudioPanel(true);
-    setIsOpen(false);
-  }, []);
+    if (!showAudioPanel) setIsOpen(true);
+  }, [showAudioPanel]);
 
   const openAudioPanel = () => {
-    setShouldAutoPlayAudio(false);
-    setShowAudioPanel(true);
-    setIsOpen(false);
-  };
-
-  const closeAudioPanel = () => {
-    setShouldAutoPlayAudio(false);
-    setShowAudioPanel(false);
-    setIsOpen(true);
+    if (!audioSrc) return;
+    openAudio({ passageRef: audioPassageRef, audioSrc, previousChapter, nextChapter, passageUrl });
   };
 
   return (
@@ -116,16 +102,6 @@ export default function ActionsBar(props: Props) {
         open={isHistoryOpen}
         setOpen={setIsHistoryOpen}
         searchHistory={searchHistory}
-      />
-      <AudioControlPanel
-        open={showAudioPanel}
-        passageRef={audioPassageRef}
-        audioSrc={audioSrc}
-        previousChapter={previousChapter}
-        nextChapter={nextChapter}
-        autoPlayOnOpen={shouldAutoPlayAudio}
-        navigateToChapter={navigateToChapter}
-        onClose={closeAudioPanel}
       />
       <ActionBar.Root
         open={isOpen && !showAudioPanel}

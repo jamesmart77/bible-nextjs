@@ -30,6 +30,7 @@ import {
   hasVerseNumber,
   serializeHtmlNode,
 } from "@/app/utils/scriptureHtmlParser";
+import { rememberPassage } from "@/lib/navigation/lastPassage";
 import Copyright from "./Copyright";
 import ShareSelectedVersesButton from "./ShareSelectedVersesButton";
 import Verse from "./Verse";
@@ -87,6 +88,10 @@ export default function ScriptureText({
       console.warn("Unable to cache passage for offline reading:", error);
     });
   }, [book, chapter, passageUrl, reference, verseTextByNumber]);
+
+  useEffect(() => {
+    rememberPassage(passageUrl);
+  }, [passageUrl]);
 
   const isVerseSelected = (verseNum: string) =>
     selectedVerses.some((verse) => verse.verseNum === verseNum);

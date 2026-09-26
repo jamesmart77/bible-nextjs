@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SerwistProvider } from "@serwist/turbopack/react";
+import AudioPlaybackProvider from "./components/passages/AudioPlaybackProvider";
+import RestoreLastPassage from "./components/utilities/RestoreLastPassage";
 import Header from "./components/nav/Header";
 import NextTopLoader from "nextjs-toploader";
 import { Provider as ChakraProvider } from "@/app/components/chakra-snippets/Provider";
@@ -66,10 +68,13 @@ export default async function RootLayout({
           cacheOnNavigation={false}
           reloadOnOnline={false}
         >
+          <RestoreLastPassage />
           <NextTopLoader />
           <ChakraProvider>
-            <Header />
-            {children}
+            <AudioPlaybackProvider>
+              <Header />
+              {children}
+            </AudioPlaybackProvider>
             {!process.env.IS_LOCAL && <Analytics />}
           </ChakraProvider>
         </SerwistProvider>
