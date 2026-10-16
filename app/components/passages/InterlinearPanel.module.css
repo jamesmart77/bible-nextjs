@@ -1,0 +1,13 @@
+/* BST encodes its original-language text with these legacy fonts. */
+@font-face {
+  font-family: "InterlinearHebrew";
+  src: url("/fonts/interlinear/BSTHebrew.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "InterlinearGreek";
+  src: url("/fonts/interlinear/BSTGreek.ttf") format("truetype");
+  font-display: swap;
+}
+.hebrew { font-family: "InterlinearHebrew", serif; }
+.greek { font-family: "InterlinearGreek", serif; }

@@ -1,0 +1,48 @@
+<div
+    x-data="BST.BibleVerses('https://www.biblestudytools.com/api/library/strongs/')"
+    data-passage-translation="nas"
+    data-passage-book="ps"
+    data-passage-chapter="119"
+    x-init="updateVersePreferences(true); initHighlighting(false, $el)"
+    @site-pref-change.window="updateVersePreferences()"
+    @bible-highlighter.window="updateHighlightMode($event.detail)"
+    @strongs-link="getReferenceLibrary('nas', 'O', $event.detail)"
+    :style="{'--bible-font-size': fontSize + 'rem'}"
+    class="bible-verses ">
+
+
+      <div
+        data-verse-id="1"
+        class="bible-verse-row font-sans leading-loose my-1 text-gray-900 dark:text-gray-100  ">
+
+            <span x-show="verseNumbers" class="verse-number">
+              1
+            </span>
+          <span class="bible-text"> How <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="0835" title="Strong's Number: 0835" @click="$dispatch('strongs-link', '0835')">blessed</span> are those whose <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="01870" title="Strong's Number: 01870" @click="$dispatch('strongs-link', '01870')">way</span> is <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="08549" title="Strong's Number: 08549" @click="$dispatch('strongs-link', '08549')">blameless</span>, Who <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="01980" title="Strong's Number: 01980" @click="$dispatch('strongs-link', '01980')">walk</span> in the <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="08451" title="Strong's Number: 08451" @click="$dispatch('strongs-link', '08451')">law</span> of the <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="03068" title="Strong's Number: 03068" @click="$dispatch('strongs-link', '03068')">LORD</span>.</span>
+
+          <div
+            class="pb-5 mb-3 border-b border-gray-400 dark:border-gray-500 dark:border-gray-400 mt-2 ">
+            <div
+              class="p-3 bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg border border-gray-200 dark:border-gray-700 dark:border-gray-200 text-2xl text-right shadow-md">
+              <span class="hebrew">h'wh.yt03068 t;rw{t.Bt08451 ~yik.l{h;h .$,r'dt01870 -yemyim.tt08549 yer.v;at0835<span>
+            </div>
+          </div>
+      </div>
+      <div
+        data-verse-id="2"
+        class="bible-verse-row font-sans leading-loose my-1 text-gray-900 dark:text-gray-100  ">
+
+            <span x-show="verseNumbers" class="verse-number">
+              2
+            </span>
+          <span class="bible-text">How <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="0835" title="Strong's Number: 0835" @click="$dispatch('strongs-link', '0835')">blessed</span> are those who <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="05341" title="Strong's Number: 05341" @click="$dispatch('strongs-link', '05341')">observe</span> His <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="05713" title="Strong's Number: 05713" @click="$dispatch('strongs-link', '05713')">testimonies</span>, Who <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="01875" title="Strong's Number: 01875" @click="$dispatch('strongs-link', '01875')">seek</span> Him with <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="03605" title="Strong's Number: 03605" @click="$dispatch('strongs-link', '03605')">all</span> their <span class="strongs " :class="strongs ? 'font-bold underline-dotted text-blue-600 cursor-pointer' : ''" data-strongs-number="03820" title="Strong's Number: 03820" @click="$dispatch('strongs-link', '03820')">heart</span>.</span>
+
+          <div
+            class="pb-5 mb-3 border-b border-gray-400 dark:border-gray-500 dark:border-gray-400 mt-2 ">
+            <div
+              class="p-3 bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg border border-gray-200 dark:border-gray-700 dark:border-gray-200 text-2xl text-right shadow-md">
+              <span class="hebrew">.Wh.Wv.r.dIyt01875 belt03820 -l'k.B wy't{de[ yer.c{n yer.v;at0835<span>
+            </div>
+          </div>
+      </div>
+      </div>

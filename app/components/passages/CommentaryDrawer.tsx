@@ -12,9 +12,11 @@ import {
   Link,
   Portal,
   Text,
+  Tabs,
 } from "@chakra-ui/react";
 import { LuBookOpen, LuChevronDown, LuExternalLink } from "react-icons/lu";
 import { getGuzikBlbStudyGuideUrl } from "@/lib/commentary/getGuzikBlbStudyGuideUrl";
+import InterlinearPanel from "./InterlinearPanel";
 
 const BLB_COMMENTARIES_URL = "https://www.blueletterbible.org/commentaries/";
 
@@ -25,6 +27,7 @@ type Props = {
 };
 
 export default function CommentaryDrawer({ bookSlug, bookName, chapter }: Props) {
+  const [tab, setTab] = useState("commentary");
   const [open, setOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
@@ -46,6 +49,7 @@ export default function CommentaryDrawer({ bookSlug, bookName, chapter }: Props)
       onOpenChange={(event) => {
         setOpen(event.open);
         if (event.open) {
+          setTab("commentary");
           setDetailsOpen(false);
           setIframeUrl(null);
           setIframeFailed(false);
@@ -55,8 +59,8 @@ export default function CommentaryDrawer({ bookSlug, bookName, chapter }: Props)
     >
       <Drawer.Trigger asChild>
         <IconButton
-          aria-label="Open commentary"
-          title="Commentary"
+          aria-label="Open commentary and interlinear"
+          title="Commentary and interlinear"
           rounded="full"
           variant="outline"
         >
@@ -79,8 +83,8 @@ export default function CommentaryDrawer({ bookSlug, bookName, chapter }: Props)
                 pr={8}
                 w="100%"
               >
-                <Drawer.Title>Commentary</Drawer.Title>
-                {commentaryUrl && (
+                <Drawer.Title>{tab === "commentary" ? "Commentary" : "Interlinear"}</Drawer.Title>
+                {tab === "commentary" && commentaryUrl && (
                   <Link
                     alignItems="center"
                     display="inline-flex"
@@ -104,118 +108,129 @@ export default function CommentaryDrawer({ bookSlug, bookName, chapter }: Props)
               minH={0}
               overflow="hidden"
             >
-              {!commentaryUrl ? (
-                <Text color="text.secondary">
-                  Commentary is not available for this passage.
-                </Text>
-              ) : (
-                <>
-                  {!iframeFailed && currentIframeUrl && (
-                    <Box
-                      bg={{ base: "#F8F3EA", _dark: "#17131A" }}
-                      borderColor={{ base: "#E6DED1", _dark: "#3A303F" }}
-                      borderWidth="1px"
-                      flex="1"
-                      minH={0}
-                      overflow="hidden"
-                      rounded="lg"
-                    >
-                      <iframe
-                        onError={() => {
-                          setDetailsOpen(true);
-                          setIframeFailed(true);
-                        }}
-                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                        src={currentIframeUrl}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          border: 0,
-                        }}
-                        title={iframeTitle}
-                      />
-                    </Box>
-                  )}
-
-                  <Collapsible.Root
-                    open={detailsOpen}
-                    onOpenChange={(event) => setDetailsOpen(event.open)}
-                  >
-                    <Collapsible.Trigger asChild>
-                      <Button
-                        alignSelf="flex-start"
-                        size="sm"
-                        variant="ghost"
-                      >
-                        David Guzik Study Guide
+              <Tabs.Root value={tab} onValueChange={({ value }) => setTab(value)} display="flex" flexDirection="column" flex="1" minH={0} lazyMount>
+                <Tabs.List flexShrink={0} mb={3}>
+                  <Tabs.Trigger value="commentary">Commentary</Tabs.Trigger>
+                  <Tabs.Trigger value="interlinear">Interlinear</Tabs.Trigger>
+                </Tabs.List>
+                <Tabs.Content value="commentary" flex="1" minH={0} display="flex" flexDirection="column" gap={3} p={0} _closed={{ display: "none" }}>
+                  {!commentaryUrl ? (
+                    <Text color="text.secondary">
+                      Commentary is not available for this passage.
+                    </Text>
+                  ) : (
+                    <>
+                      {!iframeFailed && currentIframeUrl && (
                         <Box
-                          as="span"
-                          transform={
-                            detailsOpen ? "rotate(180deg)" : "rotate(0deg)"
-                          }
-                          transition="transform 0.15s ease"
+                          bg={{ base: "#F8F3EA", _dark: "#17131A" }}
+                          borderColor={{ base: "#E6DED1", _dark: "#3A303F" }}
+                          borderWidth="1px"
+                          flex="1"
+                          minH={0}
+                          overflow="hidden"
+                          rounded="lg"
                         >
-                          <LuChevronDown />
-                        </Box>
-                      </Button>
-                    </Collapsible.Trigger>
-                    <Collapsible.Content>
-                      <Box
-                        bg={{ base: "#FFFDF8", _dark: "#211A24" }}
-                        borderColor={{ base: "#E6DED1", _dark: "#3A303F" }}
-                        borderWidth="1px"
-                        mt={2}
-                        p={4}
-                        rounded="lg"
-                      >
-                        <Text fontSize="sm" fontWeight="medium">
-                          {bookName} {chapter} on Blue Letter Bible
-                        </Text>
-                        <Text color="text.secondary" fontSize="sm" mt={1}>
-                          If the guide does not load in this panel, use the
-                          external link.
-                        </Text>
-                        <Flex
-                          align="center"
-                          gap={4}
-                          justify="space-between"
-                          mt={3}
-                          wrap="wrap"
-                        >
-                          <Link
-                            alignItems="center"
-                            display="inline-flex"
-                            fontSize="sm"
-                            gap={1}
-                            href={commentaryUrl}
-                            lineHeight="1"
-                            rel="noopener noreferrer"
-                            target="_blank"
-                          >
-                            Open on Blue Letter Bible <LuExternalLink />
-                          </Link>
-                          <Link
-                            alignItems="center"
-                            display="inline-flex"
-                            fontSize="sm"
-                            gap={1}
-                            href={BLB_COMMENTARIES_URL}
-                            lineHeight="1"
-                            onClick={(event) => {
-                              event.preventDefault();
-                              setIframeFailed(false);
-                              setIframeUrl(BLB_COMMENTARIES_URL);
-                              setDetailsOpen(false);
+                          <iframe
+                            onError={() => {
+                              setDetailsOpen(true);
+                              setIframeFailed(true);
                             }}
+                            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                            src={currentIframeUrl}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              border: 0,
+                            }}
+                            title={iframeTitle}
+                          />
+                        </Box>
+                      )}
+
+                      <Collapsible.Root
+                        open={detailsOpen}
+                        onOpenChange={(event) => setDetailsOpen(event.open)}
+                      >
+                        <Collapsible.Trigger asChild>
+                          <Button
+                            alignSelf="flex-start"
+                            size="sm"
+                            variant="ghost"
                           >
-                            Browse all BLB commentaries
-                          </Link>
-                        </Flex>
-                      </Box>
-                    </Collapsible.Content>
-                  </Collapsible.Root>
-                </>
-              )}
+                            David Guzik Study Guide
+                            <Box
+                              as="span"
+                              transform={
+                                detailsOpen ? "rotate(180deg)" : "rotate(0deg)"
+                              }
+                              transition="transform 0.15s ease"
+                            >
+                              <LuChevronDown />
+                            </Box>
+                          </Button>
+                        </Collapsible.Trigger>
+                        <Collapsible.Content>
+                          <Box
+                            bg={{ base: "#FFFDF8", _dark: "#211A24" }}
+                            borderColor={{ base: "#E6DED1", _dark: "#3A303F" }}
+                            borderWidth="1px"
+                            mt={2}
+                            p={4}
+                            rounded="lg"
+                          >
+                            <Text fontSize="sm" fontWeight="medium">
+                              {bookName} {chapter} on Blue Letter Bible
+                            </Text>
+                            <Text color="text.secondary" fontSize="sm" mt={1}>
+                              If the guide does not load in this panel, use the
+                              external link.
+                            </Text>
+                            <Flex
+                              align="center"
+                              gap={4}
+                              justify="space-between"
+                              mt={3}
+                              wrap="wrap"
+                            >
+                              <Link
+                                alignItems="center"
+                                display="inline-flex"
+                                fontSize="sm"
+                                gap={1}
+                                href={commentaryUrl}
+                                lineHeight="1"
+                                rel="noopener noreferrer"
+                                target="_blank"
+                              >
+                                Open on Blue Letter Bible <LuExternalLink />
+                              </Link>
+                              <Link
+                                alignItems="center"
+                                display="inline-flex"
+                                fontSize="sm"
+                                gap={1}
+                                href={BLB_COMMENTARIES_URL}
+                                lineHeight="1"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  setIframeFailed(false);
+                                  setIframeUrl(BLB_COMMENTARIES_URL);
+                                  setDetailsOpen(false);
+                                }}
+                              >
+                                Browse all BLB commentaries
+                              </Link>
+                            </Flex>
+                          </Box>
+                        </Collapsible.Content>
+                      </Collapsible.Root>
+                    </>
+                  )}
+                </Tabs.Content>
+                <Tabs.Content value="interlinear" flex="1" minH={0} display="flex" flexDirection="column" p={0} _closed={{ display: "none" }}>
+                  {open && tab === "interlinear" && <InterlinearPanel key={`${bookSlug}-${chapter}`} bookSlug={bookSlug} bookName={bookName} chapter={chapter} />}
+                </Tabs.Content>
+              </Tabs.Root>
             </Drawer.Body>
           </Drawer.Content>
         </Drawer.Positioner>
