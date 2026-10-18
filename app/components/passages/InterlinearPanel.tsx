@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, Flex, Heading, Link, Text } from "@chakra-ui/react";
 import type { InterlinearChapter, InterlinearToken, StrongsEntry } from "@/lib/interlinear/types";
+import StrongsDefinition from "./StrongsDefinition";
 import styles from "./InterlinearPanel.module.css";
 
 type Props = { bookSlug: string; bookName: string; chapter: number };
@@ -42,7 +43,7 @@ export default function InterlinearPanel({ bookSlug, bookName, chapter }: Props)
     setEntryError("");
     definitionHeading.current?.focus();
     if (!entries.current.has(selected)) {
-      fetch(`/api/interlinear/strongs?${new URLSearchParams({ number: selected })}`, { signal: controller.signal })
+      fetch(`/api/interlinear/strongs?${new URLSearchParams({ number: selected, format: "structured" })}`, { signal: controller.signal })
         .then(async (response) => {
           const data = await response.json();
           if (!response.ok) throw new Error(data.error);
@@ -113,7 +114,7 @@ export default function InterlinearPanel({ bookSlug, bookName, chapter }: Props)
             <Text fontSize="sm" fontWeight="semibold">Parts of speech</Text>
             <Text mb={3}>{entry.partOfSpeech}</Text>
             <Text fontSize="sm" fontWeight="semibold">Definition</Text>
-            <Text whiteSpace="pre-line" mb={3}>{entry.definition}</Text>
+            <StrongsDefinition entry={entry} />
             {entry.details.map((detail) => <Box key={detail.label} mb={2}><Text fontSize="sm" fontWeight="semibold">{detail.label}</Text><Text whiteSpace="pre-line">{detail.text}</Text></Box>)}
             <Link href={entry.sourceUrl} target="_blank" rel="noopener noreferrer" fontSize="sm" textDecoration="underline">View on BibleStudyTools</Link>
           </>}

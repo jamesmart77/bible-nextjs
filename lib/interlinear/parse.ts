@@ -1,5 +1,5 @@
 import { htmlToDOM, Element, type DOMNode } from "html-react-parser";
-import type { InterlinearChapter, InterlinearToken, StrongsEntry } from "./types";
+import type { DefinitionNode, InterlinearChapter, InterlinearToken, StrongsEntry } from "./types";
 
 function children(node: DOMNode): DOMNode[] {
   return node instanceof Element ? node.children as DOMNode[] : [];
@@ -65,6 +65,27 @@ export function parseChapter(html: string, sourceUrl: string): InterlinearChapte
   return { sourceUrl, language, verses };
 }
 
+// Preserve list hierarchy using a small allowlist, without retaining source HTML
+// attributes, links, scripts, or styles.
+function definitionNodes(nodes: DOMNode[]): DefinitionNode[] {
+  return nodes.flatMap((node): DefinitionNode[] => {
+    if (node.type === "text") return [{ type: "text", text: node.data }];
+    if (!(node instanceof Element) || ["script", "style", "iframe"].includes(node.name)) return [];
+    const content = definitionNodes(children(node));
+    switch (node.name) {
+      case "ol": {
+        const value = node.attribs.type;
+        const listType = value === "a" || value === "A" || value === "i" || value === "I" ? value : "1";
+        return [{ type: "element", tag: "ol", listType, children: content }];
+      }
+      case "ul": case "li": case "p": case "br": case "strong": case "em":
+        return [{ type: "element", tag: node.name, children: content }];
+      default:
+        return content;
+    }
+  });
+}
+
 export function parseStrongs(html: string, number: string, sourceUrl: string): StrongsEntry {
   const heading = elements(htmlToDOM(html), (node) => node.name === "h1")[0];
   const card = heading?.parent;
@@ -84,6 +105,7 @@ export function parseStrongs(html: string, number: string, sourceUrl: string): S
     number, sourceUrl, word: clean(text(heading)),
     pronunciation: sections[0] ? clean(text(sections[0])) : "",
     partOfSpeech: clean(text(part).replace("Parts of Speech", "")),
-    definition: clean(text(definition)), details,
+    definition: clean(text(definition)),
+    definitionContent: definitionNodes(children(definition)), details,
   };
 }
