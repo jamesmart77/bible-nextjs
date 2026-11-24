@@ -142,7 +142,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'User registration successful' }, { status: 201 });
   } catch (error) {
     console.error('Error during user registration:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred during user registration';
-    return NextResponse.json({ message: errorMessage }, { status: 500 });
+    return NextResponse.json({ message: 'Unable to register user' }, { status: 500 });
   }
 }

@@ -18,8 +18,12 @@ npm run dev
 Open [https://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ### Chakra
-To add new Chakra snippets, execute the following script in your terminal
-`npx @chakra-ui/cli snippet add toggle-tip --outdir app/components/chakra-snippets`
+Custom theme typings are checked in under `app/theme/generated` and copied into
+Chakra by `npm run postinstall`. Chakra React is pinned to keep these generated
+types compatible. When changing the theme or upgrading Chakra, regenerate and
+review these files using a patched Chakra CLI once available. The CLI is excluded
+from dependencies because its `braces` dependency has no patched release for
+CVE-2026-93687.
 ### DB
 
 Supabase postgres database. Setup is under...

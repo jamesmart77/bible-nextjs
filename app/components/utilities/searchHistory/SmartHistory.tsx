@@ -1,7 +1,6 @@
 import { Flex, Icon, Heading, Accordion } from "@chakra-ui/react";
 import { RiGeminiLine } from "react-icons/ri";
-import Link from "next/link";
-import parse from "html-react-parser";
+import { parseAssistedHtml } from "@/lib/assistedHtml";
 import { SearchHistory as SearchHistoryType } from "@/supabase/utils/user";
 import { capitalizeFirstLetter } from "./formatSearchHistoryQuery";
 
@@ -26,24 +25,7 @@ export default function SmartHistory({
               </Accordion.ItemTrigger>
               <Accordion.ItemContent>
                 <Accordion.ItemBody>
-                  {parse(item.queryRes || "", {
-                    replace: (domNode) => {
-                      if (
-                        domNode.type === "tag" &&
-                        domNode.name === "a" &&
-                        domNode.attribs?.href
-                      ) {
-                        return (
-                          <Link
-                            href={domNode.attribs.href}
-                            style={{ textDecoration: "underline" }}
-                          >
-                            {(domNode.children[0] as any).data}
-                          </Link>
-                        );
-                      }
-                    },
-                  })}
+                  {parseAssistedHtml(item.queryRes || "")}
                 </Accordion.ItemBody>
               </Accordion.ItemContent>
             </Accordion.Item>

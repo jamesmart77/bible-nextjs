@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { Input, Button, Separator, Alert, Icon, Box } from "@chakra-ui/react";
-import NextLink from "next/link";
-import parse from "html-react-parser";
+import { Input, InputGroup, Button, Separator, Alert, Icon, Box } from "@chakra-ui/react";
+import ClearSearchButton from "./ClearSearchButton";
+import { parseAssistedHtml } from "@/lib/assistedHtml";
 import askGemini from "@/lib/gemini";
 import { saveSearchQuery } from "@/lib/db";
 import { Fade } from "react-awesome-reveal";
@@ -21,16 +21,16 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
     }
 
     try {
-      const res = await askGemini(query);
+      const response = await askGemini(query);
       return {
-        hasError: false,
-        res,
+        hasError: !response.ok,
+        res: response.ok ? response.html : response.message,
       };
     } catch (error) {
       console.error("Error querying AI:", error);
       return {
         hasError: true,
-        res: (error as Error).message,
+        res: "Assisted search is temporarily unavailable. Please try again.",
       };
     }
   }
@@ -45,7 +45,11 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
     if (hasError) {
       setHasGeminiError(true);
     } else {
-      await saveSearchQuery(query, "ai", res);
+      try {
+        await saveSearchQuery(query, "ai", res);
+      } catch (error) {
+        console.error("Unable to save assisted search history:", error);
+      }
     }
 
     setGeminiRes(res);
@@ -53,24 +57,7 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
   };
 
   const parseRes = useMemo(() => {
-    return parse(geminiRes || "", {
-      replace: (domNode) => {
-        if (
-          domNode.type === "tag" &&
-          domNode.name === "a" &&
-          domNode.attribs?.href
-        ) {
-          return (
-            <NextLink
-              href={domNode.attribs.href}
-              style={{ textDecoration: "underline" }}
-            >
-              {(domNode.children[0] as any).data}
-            </NextLink>
-          );
-        }
-      },
-    });
+    return parseAssistedHtml(geminiRes || "");
   }, [geminiRes]);
 
   if (!isSignedIn)
@@ -92,6 +79,11 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
         aria-disabled={isLoading}
         aria-busy={isLoading}
       >
+        <InputGroup
+          data-search-field
+          endElementProps={{ pointerEvents: "auto" }}
+          endElement={query ? <ClearSearchButton disabled={isLoading} onClear={() => setQuery("")} /> : undefined}
+        >
         <Input
           size="lg"
           placeholder="Ask a bible question"
@@ -99,6 +91,7 @@ export default function AiSearch({ isSignedIn }: { isSignedIn: boolean }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        </InputGroup>
         {hasGeminiError && (
           <Alert.Root status="error" mt={4}>
             <Alert.Indicator />

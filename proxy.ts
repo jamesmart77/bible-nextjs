@@ -6,18 +6,21 @@ import { COOKIE_NAME } from './lib/constants';
 const KEY = Buffer.from(process.env.SESSION_SECRET || '', 'base64');
 
 export async function proxy(req: NextRequest) {
+  // Never forward caller-supplied identity headers as trusted session data.
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.delete('x-user-email');
+  requestHeaders.delete('x-user-id');
   const cookie = req.cookies.get(COOKIE_NAME)?.value;
-  if (!cookie) return NextResponse.next();
+  if (!cookie) return NextResponse.next({ request: { headers: requestHeaders } });
 
   try {
     const { payload } = await jwtDecrypt(cookie, KEY as any);
-    const requestHeaders = new Headers(req.headers);
     if (payload?.email) requestHeaders.set('x-user-email', String(payload.email));
     if (payload?.id) requestHeaders.set('x-user-id', String(payload.id));
 
     return NextResponse.next({ request: { headers: requestHeaders } });
   } catch (err) {
-    const res = NextResponse.next();
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
     res.headers.append('Set-Cookie', `${COOKIE_NAME}=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Strict`);
     return res;
   }

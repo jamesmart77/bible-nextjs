@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Portal,
   ActionBar,
@@ -17,7 +17,6 @@ import {
 } from "react-icons/fa6";
 import { SearchHistory as SearchHistoryType } from "@/supabase/utils/user";
 import SearchHistory from "./searchHistory/SearchHistory";
-import Link from "next/link";
 import PopupSearch from "../search/PopupSearch";
 import { SessionData } from "@/lib/constants";
 import { useAudioPlayback } from "../passages/AudioPlaybackProvider";
@@ -86,6 +85,25 @@ export default function ActionsBar(props: Props) {
     if (!showAudioPanel) setIsOpen(true);
   }, [showAudioPanel]);
 
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    setIsPrevLoading(false);
+    setIsNextLoading(false);
+    setIsOpen(true);
+  }, [passageUrl]);
+
+  const changeChapter = async (chapter: string | null, direction: "previous" | "next") => {
+    if (!chapter) return;
+    const setLoading = direction === "previous" ? setIsPrevLoading : setIsNextLoading;
+    setLoading(true);
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    try {
+      await navigateToChapter(chapter);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const openAudioPanel = () => {
     if (!audioSrc) return;
     openAudio({ passageRef: audioPassageRef, audioSrc, previousChapter, nextChapter, passageUrl });
@@ -111,7 +129,7 @@ export default function ActionsBar(props: Props) {
       >
         <Portal>
           <ActionBar.Positioner style={{ zIndex: 1 }}>
-            <ActionBar.Content>
+            <ActionBar.Content className="passage-actions">
               <IconButton
                 disabled={!previousChapter}
                 aria-label="Previous chapter"
@@ -119,8 +137,7 @@ export default function ActionsBar(props: Props) {
                 rounded="full"
                 loading={isPrevLoading}
                 onClick={() => {
-                  setIsPrevLoading(true);
-                  navigateToChapter(previousChapter);
+                  void changeChapter(previousChapter, "previous");
                 }}
               >
                 <FaAngleLeft />
@@ -209,8 +226,7 @@ export default function ActionsBar(props: Props) {
                 disabled={!nextChapter}
                 loading={isNextLoading}
                 onClick={() => {
-                  setIsNextLoading(true);
-                  navigateToChapter(nextChapter);
+                  void changeChapter(nextChapter, "next");
                 }}
               >
                 <FaAngleRight />

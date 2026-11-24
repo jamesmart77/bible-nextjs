@@ -1,9 +1,10 @@
 import { useRef } from "react";
 import { useCombobox } from "downshift";
-import { Box, Input, InputGroup, List } from "@chakra-ui/react";
+import { Box, Flex, Input, InputGroup, List } from "@chakra-ui/react";
 import { useOutsideClick } from "@chakra-ui/react-use-outside-click";
 import useDeviceBreakpoint from "@/app/hooks/useDeviceBreakpoint";
 import { bibleBooks } from "./bibleBooks";
+import ClearSearchButton from "../ClearSearchButton";
 import SearchTypSettings from "./SearchTypeSettings";
 
 type Props = {
@@ -42,8 +43,11 @@ export default function AutocompleteInput(props: Props) {
     getItemProps,
     highlightedIndex,
     openMenu,
+    reset,
+    closeMenu,
   } = useCombobox({
     items: filteredBooks,
+    inputValue,
     onInputValueChange: ({ inputValue }) => {
       setInputValue(inputValue ?? "");
     },
@@ -63,17 +67,26 @@ export default function AutocompleteInput(props: Props) {
     <Box position="relative" width="100%" ref={ref}>
       <InputGroup
         flex="1"
+        data-search-field
+        endElementProps={{ pointerEvents: "auto" }}
         endElement={
-          showSearchTypeSettings ? (
-            <SearchTypSettings
-              searchType={searchType}
-              setSearchType={setSearchType}
-            />
-          ) : undefined
+          <Flex align="center" gap="1">
+            {inputValue && (
+              <ClearSearchButton onClear={() => {
+                reset();
+                setInputValue("");
+                closeMenu();
+              }} />
+            )}
+            {showSearchTypeSettings && (
+              <SearchTypSettings searchType={searchType} setSearchType={setSearchType} />
+            )}
+          </Flex>
         }
       >
         <Input
           size="lg"
+          pe={showSearchTypeSettings ? (inputValue ? "calc(7.5rem + 40px)" : "7.5rem") : (inputValue ? "44px" : undefined)}
           borderRadius="xl"
           borderColor="var(--js-border-muted)"
           bg="var(--js-bg-input)"

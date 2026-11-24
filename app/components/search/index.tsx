@@ -4,11 +4,7 @@ import type { IconType } from "react-icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import NextLink from "next/link";
-import parse, {
-  domToReact,
-  type DOMNode,
-  type HTMLReactParserOptions,
-} from "html-react-parser";
+import { parseAssistedHtml } from "@/lib/assistedHtml";
 import {
   Alert,
   Box,
@@ -36,6 +32,7 @@ import {
   DialogRoot,
   DialogTitle,
 } from "@/app/components/chakra-snippets/dialog";
+import ClearSearchButton from "./ClearSearchButton";
 import AutocompleteInput from "./passage/Autocomplete";
 import {
   getDisplayLabel,
@@ -93,32 +90,6 @@ function recentSearchUrl(search: RecentSearch) {
   return buildSearchUrl(search.type, search.label);
 }
 
-function parseAssistedResult(result: string) {
-  const options: HTMLReactParserOptions = {
-    replace: (domNode) => {
-      if (
-        domNode.type === "tag" &&
-        domNode.name === "a" &&
-        domNode.attribs?.href
-      ) {
-        return (
-          <NextLink
-            href={domNode.attribs.href}
-            style={{
-              color: "var(--js-accent-solid)",
-              textDecoration: "underline",
-              textUnderlineOffset: "2px",
-            }}
-          >
-            {domToReact(domNode.children as DOMNode[], options)}
-          </NextLink>
-        );
-      }
-    },
-  };
-
-  return parse(result, options);
-}
 
 export default function SearchOptions({
   isSignedIn,
@@ -203,7 +174,7 @@ export default function SearchOptions({
   }, [checkSession]);
 
   const parsedAssistedResult = useMemo(() => {
-    return parseAssistedResult(assistedResult || "");
+    return parseAssistedHtml(assistedResult || "");
   }, [assistedResult]);
 
   async function queryAssistedSearch(formattedQuery: string) {
@@ -216,17 +187,18 @@ export default function SearchOptions({
     }
 
     try {
+      const response = await askGemini(formattedQuery);
       return {
-        hasError: false,
-        requiresSignIn: false,
-        result: await askGemini(formattedQuery),
+        hasError: !response.ok,
+        requiresSignIn: !response.ok && response.requiresSignIn,
+        result: response.ok ? response.html : response.message,
       };
     } catch (error) {
       console.error("Error querying AI:", error);
       return {
         hasError: true,
         requiresSignIn: false,
-        result: (error as Error).message,
+        result: "Assisted search is temporarily unavailable. Please try again.",
       };
     }
   }
@@ -245,9 +217,13 @@ export default function SearchOptions({
       return;
     }
 
-    const saveResult = await saveSearchQuery(inputValue, "ai", result);
-    if (saveResult?.status === 200) {
-      router.refresh();
+    try {
+      const saveResult = await saveSearchQuery(inputValue, "ai", result);
+      if (saveResult?.status === 200) {
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Unable to save assisted search history:", error);
     }
   }
 
@@ -274,8 +250,11 @@ export default function SearchOptions({
     setRequiresSignIn(false);
 
     if (searchType === "assisted") {
-      await handleAssistedSearch();
-      setIsLoading(false);
+      try {
+        await handleAssistedSearch();
+      } finally {
+        setIsLoading(false);
+      }
       return;
     }
 
@@ -373,6 +352,9 @@ export default function SearchOptions({
             />
           ) : (
             <InputGroup
+              data-search-field
+              endElementProps={{ pointerEvents: "auto" }}
+              endElement={inputValue ? <ClearSearchButton disabled={isLoading} onClear={() => setInputValue("")} /> : undefined}
               startElement={
                 <Icon
                   as={searchTypeIcon[searchType]}
@@ -628,7 +610,7 @@ export default function SearchOptions({
             }}
           >
             {selectedAssistedSearch?.result
-              ? parseAssistedResult(selectedAssistedSearch.result)
+              ? parseAssistedHtml(selectedAssistedSearch.result)
               : "No saved response is available for this search."}
           </DialogBody>
           <DialogCloseTrigger />

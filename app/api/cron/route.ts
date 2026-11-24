@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   if (
+    !process.env.CRON_SECRET ||
     request.headers.get("Authorization") !== `Bearer ${process.env.CRON_SECRET}`
   ) {
     console.error("Unauthorized - be gone!");

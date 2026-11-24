@@ -97,3 +97,31 @@ html.dark body {
   --js-nav-bg: rgba(22, 18, 24, 0.86);
   color: #F6F0E8;
 }
+
+/* Keep all six passage actions visible, including with enlarged root text. */
+.passage-actions {
+  box-sizing: border-box;
+  max-width: calc(100% - 16px - env(safe-area-inset-left) - env(safe-area-inset-right));
+  gap: clamp(2px, 0.8vw, 12px);
+  padding: 10px 8px;
+}
+
+.passage-actions > button {
+  flex: 0 1 44px;
+  width: 44px;
+  min-width: 24px;
+  height: 44px;
+  padding: 0;
+}
+
+.passage-actions > button svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.passage-actions > [data-part="separator"] {
+  flex: 0 0 1px;
+  margin: 0;
+  height: 24px;
+}
